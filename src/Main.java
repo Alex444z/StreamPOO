@@ -18,7 +18,7 @@ public class Main {
 				Usuario usuario = new Usuario("Admin","admin","ADM",20);
 				gerenciador.adicionarUsuario(usuario);
 				usr = false;
-			}
+			}//apagar depois
 		opc = Integer.parseInt(JOptionPane.showInputDialog(null,"1- Registrar!\n2- Login!\n0- Sair!"));
 		
 		switch (opc){
