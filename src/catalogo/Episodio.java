@@ -3,13 +3,24 @@ package catalogo;
 public class Episodio {
   private String nome;
   private double duracao;
-  numero int numeroepisodio;
 
-  public Episodio(String nome, int duracao, int numeroepisodio){
+  public Episodio(String nome, double duracao){
     this.nome = nome;
     this.duracao = duracao;
-    this.numeroepisodio = numeroepisodio
   }
+  
+  public double getDuracao() {
+	return duracao;
+  }
+
+  public void setDuracao(double duracao) {
+	this.duracao = duracao;
+  }
+
+  public String getNome() {
+	return this.nome;
+  }
+
   public void setNome(String nome){
     this.nome = nome;
   }  

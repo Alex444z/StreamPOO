@@ -7,13 +7,13 @@ public class GerenciadorConteudo {
     this.conteudos = new ArrayList<>();
   }
 
-  public void adicionarConteudo(conteudo){
+  public void adicionarConteudo(Conteudo conteudo){
     this.conteudos.add(conteudo);
   }
 
   public void removerConteudo(String nome){
     for (Conteudo c : conteudos){
-      if (c.getNome(nome).equals(nome)){
+      if (c.getNome().equals(nome)){
         this.conteudos.remove(c);
       }
     }

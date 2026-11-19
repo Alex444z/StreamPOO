@@ -1,6 +1,7 @@
-import javax.swing.JOptionPane;
+/*import javax.swing.JOptionPane;
 
 import autenticacao.GerenciadorUsuarios;
+import catalogo.Serie;
 import conta.Usuario;
 
 public class Main {
@@ -19,7 +20,7 @@ public class Main {
 				gerenciador.adicionarUsuario(usuario);
 				usr = false;
 			}//apagar depois
-		opc = Integer.parseInt(JOptionPane.showInputDialog(null,"1- Registrar!\n2- Login!\n0- Sair!"));
+		opc = Integer.parseInt(JOptionPane.showInputDialog(null,"1- Registrar!\n2- Login!\n3- ADM!\n0- Sair!"));
 		
 		switch (opc){
 			case 1:
@@ -66,6 +67,16 @@ public class Main {
 				}
 				
 				break;
+			case 3:
+				int opc3 = Integer.parseInt(JOptionPane.showInputDialog(null,"1- criar serie! !\n2- criar filme!\n0- Sair!"));
+				switch (opc3) {
+					case 1:
+						String nome1 = JOptionPane.showInputDialog(null, "");
+						Serie serie = new Serie();
+						JOptionPane.showInputDialog(null, "");
+						
+				}
+				break;
 			case 0:
 				JOptionPane.showMessageDialog(null, "Saindo...");
 				break;
@@ -75,3 +86,4 @@ public class Main {
 	}
 
 }
+*/

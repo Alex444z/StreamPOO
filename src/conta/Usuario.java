@@ -13,7 +13,7 @@ public class Usuario {
 	private int id;
 
 	// Construtor
-	public Usuario(String email, String senha, String nome, int idade) {
+	public Usuario(String nome, String email, String senha, int idade) {
 		String emailf = limparTexto(email);
 		String nomef = limparTexto(nome);
 

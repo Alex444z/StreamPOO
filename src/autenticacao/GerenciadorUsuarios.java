@@ -12,8 +12,8 @@ public class GerenciadorUsuarios {
 		usuarios = new ArrayList<Usuario>();
 	}
 	
-	public void adicionarUsuario(Usuario usuario) {
-		this.usuarios.add(usuario);
+	public boolean addUsuario(Usuario usuario) {
+		return this.usuarios.add(usuario);
 	}
 	
 	public int listarQuantiUsuario() {

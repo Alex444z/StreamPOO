@@ -8,10 +8,18 @@ public class Filme extends Conteudo {
 		this.duracao = duracao;
 	}
 
-	@Override
-	public String reproduzir() {
-		// TODO Auto-generated method stub
-		return null;
+	
+	
+	public int getDuracao() {
+		return duracao;
 	}
+
+
+
+	public void setDuracao(int duracao) {
+		this.duracao = duracao;
+	}
+
+
 	
 }

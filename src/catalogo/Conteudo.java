@@ -42,7 +42,6 @@ public abstract class Conteudo {
 		this.classificacao = classificacao;
 	}
 	
-	public abstract String reproduzir();
 	
 	
 }

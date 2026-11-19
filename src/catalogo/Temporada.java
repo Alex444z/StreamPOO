@@ -1,16 +1,30 @@
 package catalogo;
 
+import java.util.ArrayList;
+
 public class Temporada {
   private ArrayList<Episodio> episodios;
   private String descricao;
 
   public Temporada(String descricao){
     this.descricao = descricao;
-    new episodios = ArrayList<>();
+    episodios = new ArrayList<>();
   }
 
-  public void adicionarEpisodio(String nome, double duracao, int quantiepisodio){
-    Episodio episodio = new Episodio(nome, duracao, quantiepisodio);
+  public String getDescricao() {
+	return descricao;
+}
+
+  public void setDescricao(String descricao) {
+	this.descricao = descricao;
+  }
+
+  public void adicionarEpisodio(String nome, double duracao){
+    Episodio episodio = new Episodio(nome, duracao);
     episodios.add(episodio);
+  }
+  
+  public Episodio getEpisodio(int numeroepi) {
+	  return episodios.get(numeroepi);
   }
 }
