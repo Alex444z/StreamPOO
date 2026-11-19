@@ -90,7 +90,7 @@ public class StreamGUI extends JFrame implements ActionListener{
 	}	
 	
 	public void cadastrar() {
-		updateGUI();
+		updateGUI()
 		center = new JPanel();
 		JLabel label;
 		

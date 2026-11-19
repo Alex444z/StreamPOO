@@ -32,11 +32,7 @@ public class Usuario {
 	
 	
 	public ArrayList<Perfil> getPerfils() {
-		return perfils;
-	}
-
-	public void setPerfils(ArrayList<Perfil> perfils) {
-		this.perfils = perfils;
+    return new ArrayList<>(perfils);
 	}
 
 	public Perfil getPerfil(int index) {
@@ -104,7 +100,7 @@ public class Usuario {
 		int cont = 1;
 		StringBuilder sb = new StringBuilder();
 		for (Perfil p : perfils) {
-			sb.append(1 +" - " + p.getApelido()+"\n");
+			sb.append(cont +" - " + p.getApelido()+"\n");
 			cont ++;
 		}return sb.toString();
 		

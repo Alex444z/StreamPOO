@@ -23,8 +23,9 @@ public class GerenciadorUsuarios {
 	
 	public String verificarDuploEmail(String email) {
 		for (Usuario usuario : usuarios) {
-			if (usuario.getEmail().equals(email));
-			return "Email existente!";
+			if (usuario.getEmail().equals(email)){
+			    return "Email existente!";
+      }
 		}
 		return "Email disponivel!";
 	}
