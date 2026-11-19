@@ -29,7 +29,20 @@ public class Usuario {
 	public String getEmail() {
 		return email;
 	}
+	
+	
+	public ArrayList<Perfil> getPerfils() {
+		return perfils;
+	}
 
+	public void setPerfils(ArrayList<Perfil> perfils) {
+		this.perfils = perfils;
+	}
+
+	public Perfil getPerfil(int index) {
+		return perfils.get(index);
+	}
+	
 	public int getId() {
 		return id;
 	}
