@@ -22,7 +22,8 @@ public class Usuario {
 		this.nome = nomef;
 		this.idade = idade;
 		this.id = proximoId++;
-		perfils = new ArrayList<>();
+		this.perfils = new ArrayList<>();
+		addPerfil("Infantil", 13);
 	}
 
 	// getters e setters
@@ -35,8 +36,13 @@ public class Usuario {
     return new ArrayList<>(perfils);
 	}
 
-	public Perfil getPerfil(int index) {
-		return perfils.get(index);
+	public Perfil getPerfil(String apelido) {
+		for (Perfil perfil : perfils) {
+			if (perfil.getApelido().equals(apelido)) {
+				return perfil;
+			}
+		}
+		return null;
 	}
 	
 	public int getId() {
@@ -91,7 +97,7 @@ public class Usuario {
 		return texto.trim();
 	}
 
-	public void criarPerfil(String apelido, int idade) {
+	public void addPerfil(String apelido, int idade) {
 		Perfil perfil = new Perfil(apelido, idade);
 		perfils.add(perfil);
 	}

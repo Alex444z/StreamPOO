@@ -1,0 +1,49 @@
+[
+  {
+    "perfils": [
+      {
+        "apelido": "Infantil",
+        "idade": 13,
+        "historico": []
+      },
+      {
+        "apelido": "Alex",
+        "idade": 14,
+        "historico": []
+      }
+    ],
+    "email": "123",
+    "senha": "123",
+    "nome": "123",
+    "idade": 123,
+    "id": 0
+  },
+  {
+    "perfils": [
+      {
+        "apelido": "Infantil",
+        "idade": 13,
+        "historico": []
+      }
+    ],
+    "email": "321",
+    "senha": "321",
+    "nome": "321",
+    "idade": 22,
+    "id": 0
+  },
+  {
+    "perfils": [
+      {
+        "apelido": "Infantil",
+        "idade": 13,
+        "historico": []
+      }
+    ],
+    "email": "2222",
+    "senha": "222",
+    "nome": "222",
+    "idade": 222,
+    "id": 0
+  }
+]

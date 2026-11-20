@@ -1,15 +1,30 @@
 package autenticacao;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.reflect.TypeToken;
+
+import catalogo.Conteudo;
 import conta.Usuario;
 
 public class GerenciadorUsuarios {
 	
 	private ArrayList<Usuario> usuarios;
 	
-	public GerenciadorUsuarios(){
-		usuarios = new ArrayList<Usuario>();
+	public GerenciadorUsuarios() throws FileNotFoundException{
+		this.usuarios = this.recuperarJSON();
+		if (this.usuarios == null) {
+	        this.usuarios = new ArrayList<Usuario>();
+	    }
 	}
 	
 	public boolean addUsuario(Usuario usuario) {
@@ -30,6 +45,27 @@ public class GerenciadorUsuarios {
 		return "Email disponivel!";
 	}
 	
+	public void salvarJSON() throws IOException {
+		  Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		  FileWriter writer = new FileWriter("usuarios.json");
+		  gson.toJson(getUsuarios(), writer);
+		  writer.close();
+	  }
+	
+	public ArrayList<Usuario> recuperarJSON() throws FileNotFoundException {
+		File arquivo = new File("usuarios.json");
+		System.out.println("CAMINHO REAL: " + arquivo.getAbsolutePath());
+		  Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		  FileReader reader = new FileReader("usuarios.json");
+		  Type tipoLista = new TypeToken<ArrayList<Usuario>>() {}.getType();
+		  ArrayList<Usuario> usuariosrecuperados = gson.fromJson(reader, tipoLista);
+		return usuariosrecuperados;
+	}
+	
+	private ArrayList<Usuario> getUsuarios() {
+		return new ArrayList<>(usuarios);
+	}
+
 	public Usuario logarUsuario(String email, String senha) {
 		for (Usuario u : usuarios) {
 			if (u.autenticarEmail(email) && u.autenticarSenha(senha)) {
