@@ -1,0 +1,263 @@
+{
+  "series": [
+    {
+      "temporadas": [
+        {
+          "episodios": [
+            {
+              "nome": "O Menino no Iceberg",
+              "duracao": 23.0
+            },
+            {
+              "nome": "O Retorno do Avatar",
+              "duracao": 23.0
+            },
+            {
+              "nome": "O Templo do Ar do Sul",
+              "duracao": 23.0
+            },
+            {
+              "nome": "As Guerreiras de Kyoshi",
+              "duracao": 23.0
+            },
+            {
+              "nome": "O Rei de Omashu",
+              "duracao": 23.0
+            },
+            {
+              "nome": "Aprisionados",
+              "duracao": 23.0
+            },
+            {
+              "nome": "Solstício de Inverno - Parte 1",
+              "duracao": 23.0
+            },
+            {
+              "nome": "Solstício de Inverno - Parte 2",
+              "duracao": 23.0
+            },
+            {
+              "nome": "O Pergaminho da Dobra d'Água",
+              "duracao": 23.0
+            },
+            {
+              "nome": "Jato",
+              "duracao": 23.0
+            },
+            {
+              "nome": "A Grande Divisão",
+              "duracao": 23.0
+            },
+            {
+              "nome": "A Tempestade",
+              "duracao": 23.0
+            }
+          ],
+          "descricao": "Livro 1: Água - Aang parte rumo ao Polo Norte para aprender a dobra de água."
+        },
+        {
+          "episodios": [
+            {
+              "nome": "O Estado Avatar",
+              "duracao": 23.0
+            },
+            {
+              "nome": "A Caverna dos Dois Apaixonados",
+              "duracao": 23.0
+            },
+            {
+              "nome": "Retorno a Omashu",
+              "duracao": 23.0
+            },
+            {
+              "nome": "O Pântano",
+              "duracao": 23.0
+            },
+            {
+              "nome": "O Dia do Avatar",
+              "duracao": 23.0
+            },
+            {
+              "nome": "A Bandida Cega",
+              "duracao": 23.0
+            },
+            {
+              "nome": "Zuko Sozinho",
+              "duracao": 23.0
+            },
+            {
+              "nome": "A Perseguição",
+              "duracao": 23.0
+            },
+            {
+              "nome": "Trabalho Duro",
+              "duracao": 23.0
+            },
+            {
+              "nome": "A Biblioteca",
+              "duracao": 23.0
+            },
+            {
+              "nome": "O Deserto",
+              "duracao": 23.0
+            },
+            {
+              "nome": "A Passagem da Serpente",
+              "duracao": 23.0
+            }
+          ],
+          "descricao": "Livro 2: Terra - O grupo busca um mestre de dobra de terra e encontra Toph."
+        }
+      ],
+      "nome": "Avatar: A Lenda de Aang",
+      "descricao": "Um jovem dobrador de ar precisa dominar os quatro elementos para trazer paz ao mundo.",
+      "classificacao": 10
+    },
+    {
+      "temporadas": [
+        {
+          "episodios": [
+            {
+              "nome": "O Sumiço de Will Byers",
+              "duracao": 48.0
+            },
+            {
+              "nome": "A Estranha da Rua Maple",
+              "duracao": 55.0
+            },
+            {
+              "nome": "Caramba",
+              "duracao": 51.0
+            },
+            {
+              "nome": "O Corpo",
+              "duracao": 50.0
+            },
+            {
+              "nome": "A Pulga e o Acrobata",
+              "duracao": 52.0
+            },
+            {
+              "nome": "O Monstro",
+              "duracao": 46.0
+            },
+            {
+              "nome": "A Banheira",
+              "duracao": 41.0
+            },
+            {
+              "nome": "O Mundo Invertido",
+              "duracao": 54.0
+            }
+          ],
+          "descricao": "O desaparecimento de um garoto revela experimentos secretos e uma dimensão paralela."
+        },
+        {
+          "episodios": [
+            {
+              "nome": "MADMAX",
+              "duracao": 48.0
+            },
+            {
+              "nome": "Gostosuras ou Travessuras, Aberração",
+              "duracao": 56.0
+            },
+            {
+              "nome": "O Girino",
+              "duracao": 51.0
+            },
+            {
+              "nome": "Will, o Sábio",
+              "duracao": 46.0
+            },
+            {
+              "nome": "Dig Dug",
+              "duracao": 58.0
+            },
+            {
+              "nome": "O Espião",
+              "duracao": 51.0
+            },
+            {
+              "nome": "A Irmã Perdida",
+              "duracao": 45.0
+            },
+            {
+              "nome": "O Devorador de Mentes",
+              "duracao": 47.0
+            },
+            {
+              "nome": "O Portal",
+              "duracao": 62.0
+            }
+          ],
+          "descricao": "Um ano depois, uma ameaça ainda maior surge do Mundo Invertido sobre Hawkins."
+        }
+      ],
+      "nome": "Stranger Things",
+      "descricao": "Um grupo de amigos enfrenta forças sobrenaturais e segredos governamentais nos anos 80.",
+      "classificacao": 14
+    },
+    {
+      "temporadas": [
+        {
+          "episodios": [
+            {
+              "nome": "Renascimento",
+              "duracao": 22.0
+            },
+            {
+              "nome": "Confronto",
+              "duracao": 22.0
+            },
+            {
+              "nome": "Negociações",
+              "duracao": 22.0
+            },
+            {
+              "nome": "Perseguição",
+              "duracao": 22.0
+            },
+            {
+              "nome": "Táticas",
+              "duracao": 22.0
+            },
+            {
+              "nome": "Costura Aberta",
+              "duracao": 22.0
+            },
+            {
+              "nome": "Nublado",
+              "duracao": 22.0
+            },
+            {
+              "nome": "Olhar",
+              "duracao": 22.0
+            },
+            {
+              "nome": "Contato",
+              "duracao": 22.0
+            },
+            {
+              "nome": "Dúvida",
+              "duracao": 22.0
+            },
+            {
+              "nome": "Invasão",
+              "duracao": 22.0
+            },
+            {
+              "nome": "Amor",
+              "duracao": 22.0
+            }
+          ],
+          "descricao": "Light Yagami encontra um caderno sobrenatural e inicia um jogo de gato e rato com L."
+        }
+      ],
+      "nome": "Death Note",
+      "descricao": "Um estudante brilhante encontra um caderno capaz de matar qualquer pessoa cujo nome seja escrito nele.",
+      "classificacao": 16
+    }
+  ],
+  "filmes": []
+}

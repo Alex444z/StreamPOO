@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 public class Temporada {
   private ArrayList<Episodio> episodios;
+  //private int totalepisodio = episodios.size();;
   private String descricao;
 
   public Temporada(String descricao){
@@ -15,6 +16,9 @@ public class Temporada {
 	return descricao;
 }
 
+  	/*public int getTotalEpisodio() {
+  		return this.totalepisodio;
+  	}*/
   public void setDescricao(String descricao) {
 	this.descricao = descricao;
   }

@@ -3,6 +3,6 @@ package exceptions;
 public class TamanhoInvalidoException extends Exception{
 	
 	public TamanhoInvalidoException() {
-		super("Quantidade de caracteres invalidos");
+		super("A senha deve ter no mínimo 8 caráacteres!");
 	}
 }

@@ -2,8 +2,13 @@ package conta;
 
 import java.util.ArrayList;
 
+//import exceptions.CampoVazioException;
+//import exceptions.IdadeStringException;
+import exceptions.*;
 public class Usuario {
 	private static final int TAMANHO_MINIMO_SENHA = 8;
+	private static final int IDADE_MINIMA = 18;
+	private static final int IDADE_MAXIMA = 100;
 	private ArrayList<Perfil> perfils;
 	private static int proximoId = 0;
 	private String email;
@@ -11,19 +16,34 @@ public class Usuario {
 	private String nome;
 	private int idade;
 	private int id;
+	
 
 	// Construtor
-	public Usuario(String nome, String email, String senha, int idade) {
+	public Usuario(String nome, String email, String senha, int idade) throws CampoVazioException, TamanhoInvalidoException, IdadeInvalidaException,
+	EmailInvalidoException{
 		String emailf = limparTexto(email);
 		String nomef = limparTexto(nome);
-
+		
+		if(nome == null || email == null || idade == 0 || senha == null|| nome.equals("") || email.equals("") || senha.equals("")) {
+			throw new CampoVazioException();
+		}else if(senha.length() < TAMANHO_MINIMO_SENHA){
+			throw new TamanhoInvalidoException();
+		}else if(idade < IDADE_MINIMA || (idade) > IDADE_MAXIMA) {
+			throw new IdadeInvalidaException();
+		}else if(!email.contains("@") || !email.contains(".")) {
+			throw new EmailInvalidoException();		}
 		this.email = emailf;
 		this.senha = senha;
 		this.nome = nomef;
 		this.idade = idade;
-		this.id = proximoId++;
+		this.id=proximoId;
 		this.perfils = new ArrayList<>();
-		addPerfil("Infantil", 13);
+		try {
+			addPerfil("Infantil", 13);
+		} catch (PerfilDuplicadoException e) {
+			e.printStackTrace();
+		}
+		proximoId++;
 	}
 
 	// getters e setters
@@ -48,6 +68,10 @@ public class Usuario {
 	public int getId() {
 		return id;
 	}
+	
+	public String getSenha() {
+		return senha;
+	}
 
 	public String getNome() {
 		return this.nome;
@@ -58,9 +82,8 @@ public class Usuario {
 	}
 
 	public void setEmail(String email) {
-		String emailf = limparTexto(email);
-
-		this.email = emailf;
+		//String emailf = limparTexto(email);
+		this.email = email;
 	}
 
 	private void setSenha(String senha) {
@@ -80,27 +103,67 @@ public class Usuario {
 	public boolean autenticarSenha(String senha) {
 		return this.senha.equals(senha);
 	}
+	
+	public boolean autenticarNome(String nome) {
+		return this.nome.equals(nome);
+	}
 
 	public boolean autenticarEmail(String email) {
 		return this.email.equals(email);
 	}
-
+	
+	public boolean autenticarIdade(int idade){
+		return this.idade == idade;
+	}
+	
+	public void alterarEmail(String novoemail,String antigoemail) {
+		if (autenticarEmail(antigoemail) && !autenticarEmail(novoemail)) {
+			setEmail(novoemail);
+		}
+	}
+	
+	public void alterarNome(String novonome,String antigonome) {
+		if (autenticarNome(antigonome) && !autenticarNome(novonome)) {
+			setNome(novonome);
+		}
+	}
+	
+	public void alterarIdade(int novaidade,int antigaidade) {
+		if (autenticarIdade(antigaidade) && !autenticarIdade(novaidade)) {
+			setIdade(novaidade);
+		}
+	}
+	
 	public boolean alterarSenha(String novaSenha, String antigaSenha) {
-		if (autenticarSenha(antigaSenha) && !novaSenha.equals(antigaSenha)) {
+		if (autenticarSenha(antigaSenha) && !autenticarSenha(novaSenha)) {
 			setSenha(novaSenha);
 			return true;
 		}
 		return false;
 	}
+	
 
 	private String limparTexto(String texto) {
 		return texto.trim();
 	}
 
-	public void addPerfil(String apelido, int idade) {
+	public void addPerfil(String apelido, int idade) throws PerfilDuplicadoException {
+		if (getPerfil(apelido) != null) {
+			throw new PerfilDuplicadoException();
+		}else if(){
+			
+		}	
 		Perfil perfil = new Perfil(apelido, idade);
 		perfils.add(perfil);
 	}
+	
+	/*public boolean getPerfil(String apelido) {
+		for (Perfil p : perfils) {
+			if (p.equals(apelido)) {
+				return true;
+			}
+		}return false;
+	}*/
 	
 	public String listarPerfils() {
 		int cont = 1;

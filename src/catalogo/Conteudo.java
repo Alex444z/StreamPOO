@@ -6,6 +6,7 @@ public abstract class Conteudo {
 	private int classificacao;
 	
 	
+	
 	public Conteudo(String nome, String descricao, int classificacao) {
 		this.nome = nome;
 		this.descricao = descricao;
@@ -42,6 +43,5 @@ public abstract class Conteudo {
 		this.classificacao = classificacao;
 	}
 	
-	
-	
+
 }
