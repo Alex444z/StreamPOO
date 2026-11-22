@@ -32,17 +32,21 @@ public class GerenciadorUsuarios {
 	    }
 	}
 	
-	public boolean addUsuario(Usuario usuario) throws EmailExistenteException{
-		for (Usuario u : usuarios) {
-			if (u.getEmail().equals(usuario.getEmail())) {
-				throw new EmailExistenteException();
-			}
-		}
-		return this.usuarios.add(usuario);
+	public boolean addUsuario(Usuario usuario) throws EmailExistenteException {
+	    if (usuario == null) return false;
+	    for (Usuario u : usuarios) {
+	        if (u.getEmail().equalsIgnoreCase(usuario.getEmail().trim())) {
+	            throw new EmailExistenteException();
+	        }
+	    }
+	    return this.usuarios.add(usuario);
 	}
 	public void alterarEmail(Usuario usuario, String novoEmail, String antigoEmail)
 	        throws EmailExistenteException, CampoVazioException, EmailInvalidoException {
-	    for (Usuario u : usuarios) {
+		if (novoEmail == null || antigoEmail == null || novoEmail.trim().isEmpty() || antigoEmail.trim().isEmpty()) {
+	        throw new CampoVazioException();
+	    }
+		for (Usuario u : usuarios) {
 	        if (u != usuario && u.getEmail().equalsIgnoreCase(novoEmail.trim())) {
 	            throw new EmailExistenteException();
 	        }
@@ -79,7 +83,13 @@ public class GerenciadorUsuarios {
 		  FileReader reader = new FileReader("usuarios.json");
 		  Type tipoLista = new TypeToken<ArrayList<Usuario>>() {}.getType();
 		  ArrayList<Usuario> usuariosrecuperados = gson.fromJson(reader, tipoLista);
-		return usuariosrecuperados;
+		  try {
+			reader.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		  return usuariosrecuperados;
 	}
 	
 	public void salvarSessaoJSON(String email) throws IOException {
@@ -96,6 +106,12 @@ public class GerenciadorUsuarios {
 		  FileReader reader = new FileReader("sessao.json");
 		  Type tipoLista = new TypeToken<String>() {}.getType();
 		  String sessaorecuperada = gson.fromJson(reader, tipoLista);
+		  try {
+			reader.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return sessaorecuperada;
 	}
 	private ArrayList<Usuario> getUsuarios() {
@@ -103,23 +119,27 @@ public class GerenciadorUsuarios {
 	}
 	public Usuario getUsuario(String email) {
 		for (Usuario usuario : usuarios) {
-			if(usuario.getEmail().equals(email)) {
+			if(email != null && usuario.getEmail().equalsIgnoreCase(email.trim())) {
 				return usuario;
 			}
 		}return null;
 	}
 
-	public Usuario logarUsuario(String email, String senha) throws SenhaIncorretaException, EmailNaoExisteException {
-		for (Usuario u : usuarios) {
-			if (u.autenticarEmail(email)) {
-				if(u.autenticarSenha(senha)) {
-					return u;
-				}else {
-					throw new SenhaIncorretaException();
-				}
-			}
-		}
-		throw new EmailNaoExisteException();
+	public Usuario logarUsuario(String email, String senha)
+	        throws CampoVazioException, SenhaIncorretaException, EmailNaoExisteException {
+	    if (email == null || email.trim().isEmpty() || senha == null || senha.trim().isEmpty()) {
+	        throw new CampoVazioException();
+	    }
+	    for (Usuario u : usuarios) {
+	        if (u.autenticarEmail(email.trim())) {
+	            if (u.autenticarSenha(senha)) {
+	                return u;
+	            } else {
+	                throw new SenhaIncorretaException();
+	            }
+	        }
+	    }
+	    throw new EmailNaoExisteException();
 	}
 	
 	public void apagarConta(String email) throws CampoVazioException, EmailNaoExisteException {
@@ -127,7 +147,7 @@ public class GerenciadorUsuarios {
 	        throw new CampoVazioException();
 	    }
 	    
-	    boolean removido = usuarios.removeIf(u -> u.getEmail().equals(email));
+	    boolean removido = usuarios.removeIf(u -> u.getEmail().equalsIgnoreCase(email.trim()));
 	    
 	    if (!removido) {
 	        throw new EmailNaoExisteException();

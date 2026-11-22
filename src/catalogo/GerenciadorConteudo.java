@@ -16,6 +16,7 @@ import com.google.gson.reflect.TypeToken;
 
 import exceptions.CampoVazioException;
 import exceptions.ClassificacaoInvalidaException;
+import exceptions.ConteudoExistenteException;
 import exceptions.ConteudoNaoEcontradoException;
 
 
@@ -35,8 +36,10 @@ public class GerenciadorConteudo {
   
   public void recuperarJSON() throws FileNotFoundException {
 	  File arquivo = new File("conteudos.json");
+	  
 	  if (!arquivo.exists()) {
 			this.conteudos = new HashMap<>();
+			
 			this.conteudos.put("filmes", new ArrayList<>());
 			this.conteudos.put("series", new ArrayList<>());
 			return;
@@ -51,6 +54,9 @@ public class GerenciadorConteudo {
 	  if (conteudorecuperados != null) {
 		  ArrayList<Filme> filmes = gson.fromJson(gson.toJsonTree(conteudorecuperados.get("filmes")),tipoFilmes);
 		  ArrayList<Serie> series = gson.fromJson(gson.toJsonTree(conteudorecuperados.get("series")),tipoSeries);
+		  
+		  if (filmes == null) filmes = new ArrayList<>();
+		  if (series == null) series = new ArrayList<>();
 		  
 		  this.conteudos = new HashMap<>();
 		  this.conteudos.put("filmes", new ArrayList<>(filmes));
@@ -79,14 +85,14 @@ public class GerenciadorConteudo {
 		return encontrados;
 	}
 
-  public void adicionarConteudo(Conteudo conteudo) throws Exception {
+  public void adicionarConteudo(Conteudo conteudo) throws ConteudoExistenteException {
 		if (conteudo == null) {
 			return;
 		}
 
 		String chave = (conteudo instanceof Serie) ? "series" : "filmes";
 		if (!buscarConteudo(chave, conteudo.getNome()).isEmpty()) {
-			throw new Exception("Já existe um conteúdo cadastrado com este nome!");
+			throw new ConteudoExistenteException();
 		}
 
 		if (conteudo instanceof Filme) {

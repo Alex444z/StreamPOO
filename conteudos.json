@@ -681,6 +681,42 @@
       "nome": "12322",
       "descricao": "123",
       "classificacao": 11
+    },
+    {
+      "temporadas": [
+        {
+          "episodios": [],
+          "descricao": "descricao"
+        }
+      ],
+      "nome": "avatar",
+      "descricao": "321",
+      "classificacao": 11
+    },
+    {
+      "temporadas": [
+        {
+          "episodios": [
+            {
+              "nome": "oloko",
+              "duracao": 20.0
+            }
+          ],
+          "descricao": "descricao"
+        },
+        {
+          "episodios": [
+            {
+              "nome": "oloko",
+              "duracao": 20.0
+            }
+          ],
+          "descricao": "descricao"
+        }
+      ],
+      "nome": "bixo",
+      "descricao": "321",
+      "classificacao": 11
     }
   ],
   "filmes": [

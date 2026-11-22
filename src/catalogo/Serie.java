@@ -13,18 +13,24 @@ public class Serie extends Conteudo{
 	}
 
 	public String reproduzir(int numeroTemp, int numeroep) {
+		if (numeroTemp < 0 || numeroTemp >= temporadas.size()) {
+			return "Temporada não encontrada!";
+		}
 		Temporada temporada = temporadas.get(numeroTemp);
-		temporada.getEpisodio(numeroep);
-		return "Você assitiu o episodio o : " + temporada.getEpisodio(numeroep).getNome();
+		Episodio episodio = temporada.getEpisodio(numeroep);
+		if (episodio == null) {
+			return "Episódio não encontrado!";
+		}
+		return "Você assistiu o episódio: " + episodio.getNome();
 	}
 	
 
 	public ArrayList<Temporada> getTemporadas() {
-		return temporadas;
+		return new ArrayList<>(temporadas);
 	}
 
 	public void setTemporadas(ArrayList<Temporada> temporadas) {
-		this.temporadas = temporadas;
+		this.temporadas = (temporadas != null) ? new ArrayList<>(temporadas) : new ArrayList<>();
 	}
 
 	public void adicionarTemporada(String descricao) throws CampoVazioException{
@@ -33,8 +39,10 @@ public class Serie extends Conteudo{
   }
   
 	public Temporada getTemporada() {
-		return temporadas.get(temporadas.size()-1);
-
+		if (temporadas.isEmpty()) {
+			return null;
+		}
+		return temporadas.get(temporadas.size() - 1);
 	}
 	@Override
 	public double getDuracaoTotal() {

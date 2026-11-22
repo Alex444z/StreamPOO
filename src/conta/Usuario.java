@@ -51,8 +51,9 @@ public class Usuario {
 	}
 
 	public Perfil getPerfil(String apelido) {
+		if (apelido == null) return null;
 		for (Perfil perfil : perfils) {
-			if (perfil.getApelido().equals(apelido)) {
+			if (perfil.getApelido().equalsIgnoreCase(apelido.trim())) {
 				return perfil;
 			}
 		}
@@ -76,7 +77,7 @@ public class Usuario {
 	}
 
 	public void setEmail(String email) throws CampoVazioException, EmailInvalidoException {
-		if(email == null || email.equals("")) {
+		if(email == null || email.trim().isEmpty()) {
 			throw new CampoVazioException();
 		}else if(!email.contains("@") || !email.contains(".")) {
 			throw new EmailInvalidoException();		
@@ -85,7 +86,7 @@ public class Usuario {
 	}
 
 	private void setSenha(String senha) throws CampoVazioException, TamanhoInvalidoException {
-		if(senha == null || senha.equals("")) {
+		if(senha == null || senha.trim().isEmpty()) {
 			throw new CampoVazioException();
 		}else if(senha.length() < TAMANHO_MINIMO_SENHA){
 			throw new TamanhoInvalidoException();
@@ -94,7 +95,7 @@ public class Usuario {
 	}
 
 	public void setNome(String nome) throws CampoVazioException {
-		if(nome == null || nome.equals("")) {
+		if(nome == null || nome.trim().isEmpty()) {
 			throw new CampoVazioException();
 		}
 		this.nome = nome;
@@ -125,7 +126,7 @@ public class Usuario {
 	
 	public void alterarEmail(String novoemail, String antigoemail) 
 	        throws EmailExistenteException, CampoVazioException, EmailInvalidoException {
-	    if (novoemail == null || antigoemail == null || novoemail.equals("") || antigoemail.equals("")) {
+	    if (novoemail == null || antigoemail == null || novoemail.trim().isEmpty() || antigoemail.trim().isEmpty()) {
 	        throw new CampoVazioException();
 	    } else if (!autenticarEmail(antigoemail)) {
 	        throw new EmailInvalidoException("O email antigo informado está incorreto!");
@@ -135,28 +136,28 @@ public class Usuario {
 	    setEmail(novoemail);
 	}
 	
-	public void alterarNome(String novonome, String antigonome) throws CampoVazioException {
-	    if (novonome == null || antigonome == null || novonome.equals("") || antigonome.equals("")) {
+	public void alterarNome(String novonome, String antigonome) throws CampoVazioException, NomeIncorretoException, NomeIgualException {
+	    if (novonome == null || antigonome == null || novonome.trim().isEmpty() || antigonome.trim().isEmpty()) {
 	        throw new CampoVazioException();
 	    } else if (!autenticarNome(antigonome)) {
-	        throw new CampoVazioException("O nome antigo informado está incorreto!");
+	        throw new NomeIncorretoException();
 	    } else if (autenticarNome(novonome)) {
-	        throw new CampoVazioException("O novo nome não pode ser igual ao antigo!");
+	        throw new NomeIgualException();
 	    }
 	    setNome(novonome);
 	}
 	
-	public void alterarIdade(int novaidade, int antigaidade) throws IdadeInvalidaException {
+	public void alterarIdade(int novaidade, int antigaidade) throws IdadeInvalidaException, IdadeIncorretaException, IdadeIgualException {
 	    if (!autenticarIdade(antigaidade)) {
-	        throw new IdadeInvalidaException("A idade antiga informada está incorreta!");
+	        throw new IdadeIncorretaException();
 	    } else if (autenticarIdade(novaidade)) {
-	        throw new IdadeInvalidaException("A nova idade não pode ser igual à antiga!");
+	        throw new IdadeIgualException();
 	    }
 	    setIdade(novaidade);
 	}
 	
 	public void alterarSenha(String novaSenha, String antigaSenha) throws CampoVazioException, TamanhoInvalidoException, SenhaIgualException, SenhaIncorretaException {
-		if (novaSenha == null || antigaSenha == null || novaSenha.equals("") || antigaSenha.equals("")) {
+		if (novaSenha == null || antigaSenha == null || novaSenha.trim().isEmpty() || antigaSenha.trim().isEmpty()) {
 			throw new CampoVazioException();
 		}else if(!autenticarSenha(antigaSenha)){
 			throw new SenhaIncorretaException("Senha antiga incorreta!");
@@ -172,7 +173,7 @@ public class Usuario {
 	}*/
 
 	public void addPerfil(String apelido, boolean adulto) throws PerfilDuplicadoException, CampoVazioException {
-		if(apelido == null || apelido.equals("")) {
+		if(apelido == null || apelido.trim().isEmpty()) {
 			throw new CampoVazioException("Apelido não pode ser vazio");
 		}else if (getPerfil(apelido) != null) {
 			throw new PerfilDuplicadoException();
@@ -188,15 +189,15 @@ public class Usuario {
 			sb.append(cont +" - " + p.getApelido()+"\n");
 			cont ++;
 		}return sb.toString();
-		
+	
 	}
 	
-	public boolean removerPerfil(String apelido) throws CampoVazioException, PerfilNaoExisteException {
+	public boolean removerPerfil(String apelido) throws CampoVazioException, PerfilNaoExisteException, PerfilPadraoException {
 	    if (apelido == null || apelido.trim().isEmpty()) {
-	        throw new CampoVazioException("Informe o apelido do perfil a ser removido.");
+	        throw new CampoVazioException("O apelido não pode ser vazio!");
 	    }
 	    if (apelido.trim().equalsIgnoreCase("Infantil")) {
-	        throw new CampoVazioException("O perfil Infantil padrão não pode ser removido!");
+	    	throw new PerfilPadraoException();
 	    }
 	    boolean removido = perfils.removeIf(p -> p.getApelido().equalsIgnoreCase(apelido.trim()));
 	    if (!removido) {
@@ -208,7 +209,7 @@ public class Usuario {
 	public void alterarApelidoPerfil(String apelidoAntigo, String novoApelido) 
 	        throws CampoVazioException, PerfilPadraoException, PerfilNaoExisteException, PerfilDuplicadoException {
 	    
-	    if (novoApelido == null || novoApelido.trim().isEmpty()) {
+	    if (novoApelido == null || apelidoAntigo == null || apelidoAntigo.trim().isEmpty() ||novoApelido.trim().isEmpty()) {
 	        throw new CampoVazioException("O novo apelido não pode ser vazio.");
 	    }
 	    if (apelidoAntigo.trim().equalsIgnoreCase("Infantil")) {

@@ -25,17 +25,21 @@ public class Temporada {
       if (descricao == null || descricao.trim().isEmpty()) {
           throw new CampoVazioException();
       }
-	this.descricao = descricao;
+      this.descricao = descricao.trim();
   }
 
-  public void adicionarEpisodio(String nome, double duracao){
-    Episodio episodio = new Episodio(nome, duracao);
-    episodios.add(episodio);
-  }
+  public void adicionarEpisodio(String nome, double duracao) throws CampoVazioException {
+	    Episodio episodio = new Episodio(nome, duracao);
+	    episodios.add(episodio);
+	}
   
   public Episodio getEpisodio(int numeroepi) {
-	  return episodios.get(numeroepi);
-  }
+	    if (numeroepi < 0 || numeroepi >= episodios.size()) {
+	        return null;
+	    }
+	    return episodios.get(numeroepi);
+	}
+  
   public double getDuracaoTemporada() {
 		double total = 0;
 		for (Episodio ep : episodios) {
@@ -45,7 +49,7 @@ public class Temporada {
 	}
   
   public ArrayList<Episodio> getEpisodios() {
-		return this.episodios;
+	    return new ArrayList<>(this.episodios);
 	}
 
 	public int getTotalEpisodios() {

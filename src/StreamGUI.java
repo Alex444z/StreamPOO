@@ -35,11 +35,21 @@ import exceptions.CampoVazioException;
 import exceptions.EmailExistenteException;
 import exceptions.EmailInvalidoException;
 import exceptions.EmailNaoExisteException;
+import exceptions.IdadeIgualException;
+import exceptions.IdadeIncorretaException;
 import exceptions.IdadeInvalidaException;
 import exceptions.IdadeStringException;
+import exceptions.NomeIgualException;
+import exceptions.NomeIncorretoException;
 import exceptions.PerfilDuplicadoException;
+import exceptions.PerfilNaoExisteException;
+import exceptions.PerfilPadraoException;
+import exceptions.SenhaIgualException;
 import exceptions.SenhaIncorretaException;
 import exceptions.TamanhoInvalidoException;
+import exceptions.ClassificacaoInvalidaException;
+import exceptions.ConteudoExistenteException;
+import exceptions.ConteudoNaoEcontradoException;
 
 public class StreamGUI extends JFrame implements ActionListener {
 	private Usuario usuario;
@@ -545,6 +555,11 @@ public class StreamGUI extends JFrame implements ActionListener {
 		adicionarep.setActionCommand("adicionarep");
 		adicionarep.addActionListener(this);
 		center.add(adicionarep);
+		
+		JButton adicionartemp = new JButton("Add temporada");
+		adicionartemp.setActionCommand("adicionartemp");
+		adicionartemp.addActionListener(this);
+		center.add(adicionartemp);
 
 		this.add(center);
 		this.setVisible(true);
@@ -628,7 +643,6 @@ public class StreamGUI extends JFrame implements ActionListener {
 		center = new JPanel(new BorderLayout(15, 15));
 		center.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-		// --- 1. TOPO: Informações do Conteúdo ---
 		JPanel topo = new JPanel(new BorderLayout(15, 10));
 		topo.setBackground(new Color(35, 35, 35));
 		topo.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
@@ -665,12 +679,10 @@ public class StreamGUI extends JFrame implements ActionListener {
 		topo.add(infoDireita, BorderLayout.EAST);
 		center.add(topo, BorderLayout.NORTH);
 
-		// --- 2. CENTRO: Temporadas/Episódios (Série) ou Assistir (Filme) ---
 		if (conteudoatual instanceof Serie) {
 			Serie s = (Serie) conteudoatual;
 			JPanel painelSerie = new JPanel(new BorderLayout(10, 10));
 
-			// Barra de seleção de temporada
 			JPanel barraTemporada = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
 			barraTemporada.add(new JLabel("Selecione a Temporada:"));
 
@@ -684,13 +696,11 @@ public class StreamGUI extends JFrame implements ActionListener {
 			barraTemporada.add(comboTemporadas);
 			painelSerie.add(barraTemporada, BorderLayout.NORTH);
 
-			// Painel onde os episódios serão listados
 			JPanel listaEpisodiosPanel = new JPanel(new GridLayout(0, 1, 8, 8));
 			javax.swing.JScrollPane scroll = new javax.swing.JScrollPane(listaEpisodiosPanel);
 			scroll.setBorder(BorderFactory.createTitledBorder("Episódios"));
 			painelSerie.add(scroll, BorderLayout.CENTER);
 
-			// Ação para preencher os episódios conforme a temporada escolhida
 			Runnable atualizarListaEpisodios = () -> {
 				listaEpisodiosPanel.removeAll();
 				int idxTemp = comboTemporadas.getSelectedIndex();
@@ -802,7 +812,7 @@ public class StreamGUI extends JFrame implements ActionListener {
 		this.repaint();
 	}
 	
-	private void editarConteudo(String chave, String nomeAtual) throws Exception {
+	private void editarConteudo(String chave, String nomeAtual) throws ClassificacaoInvalidaException, ConteudoNaoEcontradoException, CampoVazioException, IdadeStringException, IOException {
 		String[] opcoes = {"Nome", "Descrição", "Classificação"};
 		int escolha = JOptionPane.showOptionDialog(
 				this,
@@ -854,7 +864,7 @@ public class StreamGUI extends JFrame implements ActionListener {
 			} else if (cmd.equals("Cadastrar")) {
 				String nome = nomeTxt.getText().trim();
 				String email = emailTxt.getText().trim();
-				String senha = senhaTxt.getText(); // senha não leva trim
+				String senha = senhaTxt.getText();
 				int idade = lerInteiro(idadeTxt.getText());
  
 				Usuario novo = new Usuario(nome, email, senha, idade);
@@ -1092,23 +1102,33 @@ public class StreamGUI extends JFrame implements ActionListener {
 			    	String nomeAtual = cmd.replace("editarfilme:", "");
 			    	editarConteudo("filmes", nomeAtual);
 			    	listarConteudos(filmes, "editarfilme:");
+			    } else if (cmd.equals("adicionartemp")) {
+					if (serie == null) {
+						JOptionPane.showMessageDialog(this, "Cadastre uma série primeiro.");
+						return;
+					}
+					String descricaotemp = descricaotempTxt.getText().trim();
+					serie.adicionarTemporada(descricaotemp);
+					gerenciadorConteudo.salvarJSON();
+					descricaotempTxt.setText("");
+					JOptionPane.showMessageDialog(this, "Nova temporada adicionada!");
 			    }
-			
-		// A ORDEM dos catch importa: o mais específico vem antes do mais geral.
 		} catch (NumberFormatException nfe) {
-			// Double.parseDouble com texto inválido (duração do episódio)
 			JOptionPane.showMessageDialog(this, "Digite apenas números nos campos numéricos.");
 		} catch (IOException ioe) {
 			JOptionPane.showMessageDialog(this, "Não foi possível salvar os dados.");
+		} catch (CampoVazioException | EmailExistenteException | EmailInvalidoException
+				| EmailNaoExisteException | IdadeInvalidaException | IdadeStringException
+				| PerfilDuplicadoException | SenhaIncorretaException | TamanhoInvalidoException
+				| ClassificacaoInvalidaException | ConteudoExistenteException
+				| ConteudoNaoEcontradoException | SenhaIgualException | NomeIncorretoException
+				| NomeIgualException | IdadeIncorretaException | IdadeIgualException
+				| PerfilNaoExisteException | PerfilPadraoException ex) {
+			JOptionPane.showMessageDialog(this, ex.getMessage());
 		} catch (RuntimeException re) {
-			// erro de programação (null, índice...): mostra aviso e registra no console
 			re.printStackTrace();
 			JOptionPane.showMessageDialog(this, "Erro inesperado: " + re);
-		} catch (Exception ex) {
-			// aqui caem todas as exceções do domínio (campo vazio, e-mail inválido,
-			// e-mail existente, senha incorreta, perfil duplicado, etc.)
-			JOptionPane.showMessageDialog(this, ex.getMessage());
-		} 
+		}
 
 	
 	}
