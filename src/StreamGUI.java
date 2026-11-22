@@ -12,6 +12,7 @@ import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -28,6 +29,7 @@ import catalogo.Conteudo;
 import conta.Perfil;
 import conta.Usuario;
 import exceptions.CampoVazioException;
+import exceptions.EmailExistenteException;
 import exceptions.EmailInvalidoException;
 import exceptions.IdadeInvalidaException;
 import exceptions.IdadeStringException;
@@ -66,6 +68,7 @@ public class StreamGUI extends JFrame implements ActionListener {
 	private JTextField novaidadeTxt;
 	private JTextField apelidoTxt;
 	private JTextField idadeperfilaTxt;
+	private JCheckBox adultoCheck;
 
 	public StreamGUI() {
 		try {
@@ -259,16 +262,15 @@ public class StreamGUI extends JFrame implements ActionListener {
 		updateGUI();
 		center = new JPanel();
 		JLabel label;
+		JCheckBox adultoCheck;
 		
 		label = new JLabel("Apelido:");
 		apelidoTxt = new JTextField(10);
 		center.add(label);
 		center.add(apelidoTxt);
 		
-		label = new JLabel("Idade:");
-		idadeperfilaTxt = new JTextField(10);
-		center.add(label);
-		center.add(idadeperfilaTxt);
+		adultoCheck = new JCheckBox("Perfil Adulto");
+		center.add(adultoCheck);
 		
 		JButton criar = new JButton("Criar");
 		criar.setActionCommand("criarperfil");
@@ -551,26 +553,34 @@ public class StreamGUI extends JFrame implements ActionListener {
 				JOptionPane.showMessageDialog(this, iie.getMessage());
 			} catch (EmailInvalidoException eie) {
 				JOptionPane.showMessageDialog(this, eie.getMessage());
+			} catch (PerfilDuplicadoException pde) {
+				JOptionPane.showMessageDialog(this, pde.getMessage());
+			} catch (EmailExistenteException eee) {
+				JOptionPane.showMessageDialog(this, eee.getMessage());
 			}
 			
 
 			
 		} else if (cmd.equals("logar")) {
+			try {
 			String email = emailTxt.getText();
 			String senha = senhaTxt.getText();
 			usuario = gerenciador.logarUsuario(email, senha);
-			if (usuario != null) {
-				STATUSCONTA = true;
-				this.remove(menubar);
-
-				this.add(createMenu(), BorderLayout.NORTH);
-				menubar.revalidate();
-				menubar.repaint();
-
-				JOptionPane.showMessageDialog(this, "Usuario logado com sucesso!");
-				exibirPerfis();
-			} else {
-				JOptionPane.showMessageDialog(this, "Usuario ou senha invalida!");
+				if (usuario != null) {
+					STATUSCONTA = true;
+					this.remove(menubar);
+	
+					this.add(createMenu(), BorderLayout.NORTH);
+					menubar.revalidate();
+					menubar.repaint();
+	
+					JOptionPane.showMessageDialog(this, "Usuario logado com sucesso!");
+					exibirPerfis();
+				} else {
+					JOptionPane.showMessageDialog(this, "Usuario ou senha invalida!");
+				}
+			}catch(EmailExistenteException eee) {
+				JOptionPane.showMessageDialog(this, eee.getMessage());
 			}
 		} else if (cmd.equals("menuperfils")) {
 			exibirPerfis();
@@ -584,16 +594,10 @@ public class StreamGUI extends JFrame implements ActionListener {
 		} else if (cmd.equals("criarperfil")) {
 			try {
 				String apelido = apelidoTxt.getText();
-				String idadetexto = idadeperfilaTxt.getText();
+				boolean adulto = adultoCheck.isSelected();
 
-				int idade;
-				try {
-					idade = Integer.parseInt(idadetexto);
-				} catch (NumberFormatException nfe) {
-					throw new IdadeStringException();
-				}
 
-				usuario.addPerfil(apelido, idade);
+				usuario.addPerfil(apelido, adulto);
 				gerenciador.salvarJSON();
 
 			} catch (PerfilDuplicadoException pde) {

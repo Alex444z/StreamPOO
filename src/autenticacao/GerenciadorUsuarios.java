@@ -15,6 +15,9 @@ import com.google.gson.reflect.TypeToken;
 
 import catalogo.Conteudo;
 import conta.Usuario;
+import exceptions.EmailExistenteException;
+import exceptions.EmailNaoExisteException;
+import exceptions.SenhaIncorretaException;
 
 public class GerenciadorUsuarios {
 	
@@ -27,7 +30,12 @@ public class GerenciadorUsuarios {
 	    }
 	}
 	
-	public boolean addUsuario(Usuario usuario) {
+	public boolean addUsuario(Usuario usuario) throws EmailExistenteException{
+		for (Usuario u : usuarios) {
+			if (u.getEmail().equals(usuario.getEmail())) {
+				throw new EmailExistenteException();
+			}
+		}
 		return this.usuarios.add(usuario);
 	}
 	
@@ -66,14 +74,17 @@ public class GerenciadorUsuarios {
 		return new ArrayList<>(usuarios);
 	}
 
-	public Usuario logarUsuario(String email, String senha) {
+	public Usuario logarUsuario(String email, String senha) throws SenhaIncorretaException, EmailNaoExisteException {
 		for (Usuario u : usuarios) {
-			if (u.autenticarEmail(email) && u.autenticarSenha(senha)) {
-				return u;
+			if (u.autenticarEmail(email)) {
+				if(u.autenticarSenha(senha)) {
+					return u;
+				}else {
+					throw new SenhaIncorretaException();
+				}
 			}
-		}return null;
-
-		
+		}
+		throw new EmailNaoExisteException();
 	}
 	
 }

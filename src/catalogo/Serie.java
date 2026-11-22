@@ -1,11 +1,14 @@
 package catalogo;
 import java.util.ArrayList;
 
+import exceptions.CampoVazioException;
+import exceptions.ClassificacaoInvalidaException;
+
 public class Serie extends Conteudo{
 	private ArrayList<Temporada> temporadas;
 	
-	public Serie(String nome, String descricao, int classificacao) {
-		super(nome, descricao, classificacao );
+	public Serie(String nome, String descricao, int classificacao) throws CampoVazioException, ClassificacaoInvalidaException {
+		super(nome, descricao, classificacao);
 		this.temporadas = new ArrayList<>();
 	}
 
@@ -24,7 +27,7 @@ public class Serie extends Conteudo{
 		this.temporadas = temporadas;
 	}
 
-	public void adicionarTemporada(String descricao){
+	public void adicionarTemporada(String descricao) throws CampoVazioException{
 		Temporada temporada = new Temporada(descricao);
 	 this.temporadas.add(temporada);
   }

@@ -20,30 +20,14 @@ public class Usuario {
 
 	// Construtor
 	public Usuario(String nome, String email, String senha, int idade) throws CampoVazioException, TamanhoInvalidoException, IdadeInvalidaException,
-	EmailInvalidoException{
-		String emailf = limparTexto(email);
-		String nomef = limparTexto(nome);
-		
-		if(nome == null || email == null || idade == 0 || senha == null|| nome.equals("") || email.equals("") || senha.equals("")) {
-			throw new CampoVazioException();
-		}else if(senha.length() < TAMANHO_MINIMO_SENHA){
-			throw new TamanhoInvalidoException();
-		}else if(idade < IDADE_MINIMA || (idade) > IDADE_MAXIMA) {
-			throw new IdadeInvalidaException();
-		}else if(!email.contains("@") || !email.contains(".")) {
-			throw new EmailInvalidoException();		}
-		this.email = emailf;
-		this.senha = senha;
-		this.nome = nomef;
-		this.idade = idade;
-		this.id=proximoId;
+	EmailInvalidoException, PerfilDuplicadoException{
 		this.perfils = new ArrayList<>();
-		try {
-			addPerfil("Infantil", 13);
-		} catch (PerfilDuplicadoException e) {
-			e.printStackTrace();
-		}
-		proximoId++;
+		addPerfil("Infantil", false);
+		setEmail(email);
+		setSenha(senha);
+		setNome(nome);
+		setIdade(idade);
+		this.id=proximoId++;
 	}
 
 	// getters e setters
@@ -81,22 +65,35 @@ public class Usuario {
 		return this.idade;
 	}
 
-	public void setEmail(String email) {
-		//String emailf = limparTexto(email);
+	public void setEmail(String email) throws CampoVazioException, EmailInvalidoException {
+		if(email == null || email.equals("")) {
+			throw new CampoVazioException();
+		}else if(!email.contains("@") || !email.contains(".")) {
+			throw new EmailInvalidoException();		
+		}
 		this.email = email;
 	}
 
-	private void setSenha(String senha) {
+	private void setSenha(String senha) throws CampoVazioException, TamanhoInvalidoException {
+		if(senha == null || senha.equals("")) {
+			throw new CampoVazioException();
+		}else if(senha.length() < TAMANHO_MINIMO_SENHA){
+			throw new TamanhoInvalidoException();
+		}
 		this.senha = senha;
 	}
 
-	public void setNome(String nome) {
-		String nomef = limparTexto(nome);
-
-		this.nome = nomef;
+	public void setNome(String nome) throws CampoVazioException {
+		if(nome == null || nome.equals("")) {
+			throw new CampoVazioException();
+		}
+		this.nome = nome;
 	}
 
-	public void setIdade(int idade) {
+	public void setIdade(int idade) throws IdadeInvalidaException {
+		if(idade < IDADE_MINIMA || (idade) > IDADE_MAXIMA) {
+			throw new IdadeInvalidaException();
+		}
 		this.idade = idade;
 	}
 
@@ -116,54 +113,63 @@ public class Usuario {
 		return this.idade == idade;
 	}
 	
-	public void alterarEmail(String novoemail,String antigoemail) {
-		if (autenticarEmail(antigoemail) && !autenticarEmail(novoemail)) {
-			setEmail(novoemail);
-		}
+	public void alterarEmail(String novoemail, String antigoemail) 
+	        throws EmailExistenteException, CampoVazioException, EmailInvalidoException {
+	    if (novoemail == null || antigoemail == null || novoemail.equals("") || antigoemail.equals("")) {
+	        throw new CampoVazioException();
+	    } else if (!autenticarEmail(antigoemail)) {
+	        throw new EmailInvalidoException("O email antigo informado está incorreto!");
+	    } else if (autenticarEmail(novoemail)) {
+	        throw new EmailExistenteException("O novo email é igual ao email antigo!");
+	    }
+	    setEmail(novoemail);
 	}
 	
-	public void alterarNome(String novonome,String antigonome) {
-		if (autenticarNome(antigonome) && !autenticarNome(novonome)) {
-			setNome(novonome);
-		}
+	public void alterarNome(String novonome, String antigonome) throws CampoVazioException {
+	    if (novonome == null || antigonome == null || novonome.equals("") || antigonome.equals("")) {
+	        throw new CampoVazioException();
+	    } else if (!autenticarNome(antigonome)) {
+	        throw new CampoVazioException("O nome antigo informado está incorreto!");
+	    } else if (autenticarNome(novonome)) {
+	        throw new CampoVazioException("O novo nome não pode ser igual ao antigo!");
+	    }
+	    setNome(novonome);
 	}
 	
-	public void alterarIdade(int novaidade,int antigaidade) {
-		if (autenticarIdade(antigaidade) && !autenticarIdade(novaidade)) {
-			setIdade(novaidade);
-		}
+	public void alterarIdade(int novaidade, int antigaidade) throws IdadeInvalidaException {
+	    if (!autenticarIdade(antigaidade)) {
+	        throw new IdadeInvalidaException("A idade antiga informada está incorreta!");
+	    } else if (autenticarIdade(novaidade)) {
+	        throw new IdadeInvalidaException("A nova idade não pode ser igual à antiga!");
+	    }
+	    setIdade(novaidade);
 	}
 	
-	public boolean alterarSenha(String novaSenha, String antigaSenha) {
-		if (autenticarSenha(antigaSenha) && !autenticarSenha(novaSenha)) {
-			setSenha(novaSenha);
-			return true;
+	public void alterarSenha(String novaSenha, String antigaSenha) throws CampoVazioException, TamanhoInvalidoException, SenhaIgualException, SenhaIncorretaException {
+		if (novaSenha == null || antigaSenha == null || novaSenha.equals("") || antigaSenha.equals("")) {
+			throw new CampoVazioException();
+		}else if(!autenticarSenha(antigaSenha)){
+			throw new SenhaIncorretaException("Senha antiga incorreta!");
+		}else if (autenticarSenha(novaSenha)) {
+			throw new SenhaIgualException();
 		}
-		return false;
+		setSenha(novaSenha);
 	}
 	
 
-	private String limparTexto(String texto) {
+	/*private String limparTexto(String texto) {
 		return texto.trim();
-	}
-
-	public void addPerfil(String apelido, int idade) throws PerfilDuplicadoException {
-		if (getPerfil(apelido) != null) {
-			throw new PerfilDuplicadoException();
-		}else if(){
-			
-		}	
-		Perfil perfil = new Perfil(apelido, idade);
-		perfils.add(perfil);
-	}
-	
-	/*public boolean getPerfil(String apelido) {
-		for (Perfil p : perfils) {
-			if (p.equals(apelido)) {
-				return true;
-			}
-		}return false;
 	}*/
+
+	public void addPerfil(String apelido, boolean adulto) throws PerfilDuplicadoException, CampoVazioException {
+		if(apelido == null || apelido.equals("")) {
+			throw new CampoVazioException("Apelido não pode ser vazio");
+		}else if (getPerfil(apelido) != null) {
+			throw new PerfilDuplicadoException();
+		}
+		Perfil perfil = new Perfil(apelido, adulto);
+		perfils.add(perfil);	
+	}
 	
 	public String listarPerfils() {
 		int cont = 1;

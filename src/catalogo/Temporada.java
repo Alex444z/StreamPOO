@@ -2,13 +2,15 @@ package catalogo;
 
 import java.util.ArrayList;
 
+import exceptions.CampoVazioException;
+
 public class Temporada {
   private ArrayList<Episodio> episodios;
   //private int totalepisodio = episodios.size();;
   private String descricao;
 
-  public Temporada(String descricao){
-    this.descricao = descricao;
+  public Temporada(String descricao) throws CampoVazioException{
+    setDescricao(descricao);
     episodios = new ArrayList<>();
   }
 
@@ -19,7 +21,10 @@ public class Temporada {
   	/*public int getTotalEpisodio() {
   		return this.totalepisodio;
   	}*/
-  public void setDescricao(String descricao) {
+  public void setDescricao(String descricao) throws CampoVazioException {
+      if (descricao == null || descricao.trim().isEmpty()) {
+          throw new CampoVazioException();
+      }
 	this.descricao = descricao;
   }
 
