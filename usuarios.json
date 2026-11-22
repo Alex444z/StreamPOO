@@ -1,0 +1,21 @@
+[
+  {
+    "perfils": [
+      {
+        "apelido": "Infantil",
+        "adulto": false,
+        "historico": []
+      },
+      {
+        "apelido": "Alex",
+        "adulto": true,
+        "historico": []
+      }
+    ],
+    "email": "11@.",
+    "senha": "12345678",
+    "nome": "123",
+    "idade": 22,
+    "id": 1
+  }
+]

@@ -36,6 +36,19 @@ public class Serie extends Conteudo{
 		return temporadas.get(temporadas.size()-1);
 
 	}
+	@Override
+	public double getDuracaoTotal() {
+		double total = 0;
+		for (Temporada t : temporadas) {
+			total += t.getDuracaoTemporada();
+		}
+		return total;
+	}
+
+	@Override
+	public String getResumoDetalhes() {
+		return "Série • " + temporadas.size() + " temporada(s) • Duração total: " + getDuracaoTotal() + " min";
+	}
 	/*public int getDuracao() {
 		int temp = 0;
 		for (Temporada temporada : temporadas) {

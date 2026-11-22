@@ -25,15 +25,20 @@ import javax.swing.JTextField;
 import autenticacao.GerenciadorUsuarios;
 import catalogo.GerenciadorConteudo;
 import catalogo.Serie;
+import catalogo.Temporada;
+import catalogo.Filme;
 import catalogo.Conteudo;
+import catalogo.Episodio;
 import conta.Perfil;
 import conta.Usuario;
 import exceptions.CampoVazioException;
 import exceptions.EmailExistenteException;
 import exceptions.EmailInvalidoException;
+import exceptions.EmailNaoExisteException;
 import exceptions.IdadeInvalidaException;
 import exceptions.IdadeStringException;
 import exceptions.PerfilDuplicadoException;
+import exceptions.SenhaIncorretaException;
 import exceptions.TamanhoInvalidoException;
 
 public class StreamGUI extends JFrame implements ActionListener {
@@ -44,6 +49,7 @@ public class StreamGUI extends JFrame implements ActionListener {
 	private GerenciadorConteudo gerenciadorConteudo;
 	private Serie serie;
 	ArrayList<Conteudo> series;
+	ArrayList<Conteudo> filmes;
 
 	private JPanel center;
 	JMenuBar menubar;
@@ -69,17 +75,23 @@ public class StreamGUI extends JFrame implements ActionListener {
 	private JTextField apelidoTxt;
 	private JTextField idadeperfilaTxt;
 	private JCheckBox adultoCheck;
+	private JTextField novoApelidoTxt;
 
 	public StreamGUI() {
 		try {
 			gerenciadorConteudo = new GerenciadorConteudo();
 			series =gerenciadorConteudo.getConteudo("series");
+			filmes = gerenciadorConteudo.getConteudo("filmes");
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		try {
 			gerenciador = new GerenciadorUsuarios();
+			if (gerenciador.getUsuario(gerenciador.recuperarSessaoJSON()) != null) { 
+				usuario = gerenciador.getUsuario(gerenciador.recuperarSessaoJSON());
+				STATUSCONTA = true;
+			}
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -114,6 +126,13 @@ public class StreamGUI extends JFrame implements ActionListener {
 			item.addActionListener(this);
 			menuseguranca.add(item);
 			menu.add(menuseguranca);
+			
+			item = new JMenuItem("Apagar conta");
+			item.setActionCommand("menuconta");
+			item.addActionListener(this);
+			menuseguranca.add(item);
+			menu.add(menuseguranca);
+			
 			menubar.add(menu);
 			
 			JMenu painelconteudo = new JMenu("Painel");
@@ -124,10 +143,36 @@ public class StreamGUI extends JFrame implements ActionListener {
 			menubar.add(painelconteudo);
 			
 			// perfis
-			item = new JMenuItem("Perfils");
-			item.setActionCommand("menuperfils");
+			JMenu perfilmenu = new JMenu("perfil");
+			item = new JMenuItem("Perfis");
+			item.setActionCommand("listaperfis");
+			item.addActionListener(this);
+			perfilmenu.add(item);
+			menubar.add(perfilmenu);
+			
+			item = new JMenuItem("Remover perfil");
+			item.setActionCommand("removerperfil");
+			item.addActionListener(this);
+			perfilmenu.add(item);
+			menubar.add(perfilmenu);
+			
+			item = new JMenuItem("Adicionar perfil");
+			item.setActionCommand("adicionarperfil");
+			item.addActionListener(this);
+			perfilmenu.add(item);
+			menubar.add(perfilmenu);
+			
+			item = new JMenuItem("Mudar Apelido");
+			item.setActionCommand("apelidoperfil");
+			item.addActionListener(this);
+			perfilmenu.add(item);
+			menubar.add(perfilmenu);
+			
+			item = new JMenuItem("Sair");
+			item.setActionCommand("sairconta");
 			item.addActionListener(this);
 			menu.add(item);
+			
 			menubar.add(menu);
 
 		} else {
@@ -143,10 +188,46 @@ public class StreamGUI extends JFrame implements ActionListener {
 			menubar.add(menu);
 
 			JMenu menuadm = new JMenu("ADMIN");
-			item = new JMenuItem("AcessoAdmin");
-			item.setActionCommand("admacess");
+			JMenu menuserie = new JMenu("Gerenciar series");
+			menuserie.setActionCommand("gerenciarseries");
+			menuserie.addActionListener(this);
+			menuadm.add(menuserie);
+			
+			item = new JMenuItem("Adicionar serie");
+			item.setActionCommand("adicionarserie");
 			item.addActionListener(this);
-			menuadm.add(item);
+			menuserie.add(item);
+			
+			item = new JMenuItem("Apagar serie");
+			item.setActionCommand("apagarserie");
+			item.addActionListener(this);
+			menuserie.add(item);
+			
+			item = new JMenuItem("Editar serie");
+			item.setActionCommand("editarserie");
+			item.addActionListener(this);
+			menuserie.add(item);
+			
+			JMenu menufilme = new JMenu("Gerenciar filmes");
+			menufilme.setActionCommand("gerenciarfilmes");
+			menufilme.addActionListener(this);
+			menuadm.add(menufilme);
+			
+			item = new JMenuItem("Adicionar filme");
+			item.setActionCommand("adicionarfilme");
+			item.addActionListener(this);
+			menufilme.add(item);
+			
+			item = new JMenuItem("Apagar filme");
+			item.setActionCommand("apagarfilme");
+			item.addActionListener(this);
+			menufilme.add(item);
+			
+			item = new JMenuItem("Editar filme");
+			item.setActionCommand("editarfilme");
+			item.addActionListener(this);
+			menufilme.add(item);
+			
 			menubar.add(menuadm);
 
 		}
@@ -157,6 +238,7 @@ public class StreamGUI extends JFrame implements ActionListener {
 		if (center != null) {
 			this.remove(center);
 		}
+		this.revalidate();
 		this.repaint();
 
 	}
@@ -168,6 +250,12 @@ public class StreamGUI extends JFrame implements ActionListener {
 		this.setLayout(new BorderLayout());
 		this.add(createMenu(), BorderLayout.NORTH);
 
+		if (STATUSCONTA && usuario != null) {
+	        exibirPerfis();
+	    } else {
+	        login();
+	    }
+		
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setVisible(true);
 
@@ -234,19 +322,22 @@ public class StreamGUI extends JFrame implements ActionListener {
 		this.setVisible(true);
 
 	}
-
-	public void exibirPerfis() {
-		updateGUI();
+	private void listarPerfils(String prefixoComando) {
 		center = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-
 		for (Perfil p : usuario.getPerfils()) {
 
 			JButton perfil = new JButton(p.getApelido());
 			perfil.setPreferredSize(new Dimension(100, 100));
-			perfil.setActionCommand("perfil:" + p.getApelido());
+			perfil.setActionCommand(prefixoComando + p.getApelido());
 			perfil.addActionListener(this);
 			center.add(perfil);
 		}
+	}
+	public void exibirPerfis() {
+		updateGUI();
+
+		listarPerfils("perfil:");	
+		
 		JButton addperfil = new JButton("+");
 		addperfil.setPreferredSize(new Dimension(100, 100));
 		addperfil.setActionCommand("adicionarperfil");
@@ -262,7 +353,6 @@ public class StreamGUI extends JFrame implements ActionListener {
 		updateGUI();
 		center = new JPanel();
 		JLabel label;
-		JCheckBox adultoCheck;
 		
 		label = new JLabel("Apelido:");
 		apelidoTxt = new JTextField(10);
@@ -270,12 +360,45 @@ public class StreamGUI extends JFrame implements ActionListener {
 		center.add(apelidoTxt);
 		
 		adultoCheck = new JCheckBox("Perfil Adulto");
+		
 		center.add(adultoCheck);
 		
 		JButton criar = new JButton("Criar");
 		criar.setActionCommand("criarperfil");
 		criar.addActionListener(this);
 		center.add(criar);
+		
+		this.add(center);
+		this.setVisible(true);
+	}
+	
+	public void removerPerfil() {
+		updateGUI();
+
+		listarPerfils("removerperfil:");
+		
+		this.add(center);
+		this.setVisible(true);
+	}
+	
+	public void mudarApelido() {
+		updateGUI();
+		
+		listarPerfils("mudarapelido:");
+		this.add(center);
+		this.setVisible(true);
+		
+	}
+	
+	public void mudarApelidoMenu(){
+		updateGUI();
+		center = new JPanel();
+		JLabel label;
+		
+		label = new JLabel("Novo apelido:");
+		novoApelidoTxt = new JTextField(10);
+		center.add(label);
+		center.add(novoApelidoTxt);
 		
 		this.add(center);
 		this.setVisible(true);
@@ -378,11 +501,12 @@ public class StreamGUI extends JFrame implements ActionListener {
 	}
 
 	public void cadastrarSerie() {
+		serie = null;
 		updateGUI();
 		center = new JPanel();
 		JLabel label;
 
-		label = new JLabel("Nome da serie/Filme:");
+		label = new JLabel("Nome da serie:");
 		nomeConteudoTxt = new JTextField(10);
 		center.add(label);
 		center.add(nomeConteudoTxt);
@@ -452,261 +576,546 @@ public class StreamGUI extends JFrame implements ActionListener {
 		center.add(duracaoTxt);
 
 		JButton cadastrarconteudo = new JButton("Cadastrar");
-		cadastrarconteudo.setActionCommand("cadastrarconteudo");
+		cadastrarconteudo.setActionCommand("cadastrarfilme");
 		cadastrarconteudo.addActionListener(this);
-		center.add(cadastrarconteudo);
+		center.add(cadastrarconteudo);;
 
 		this.add(center);
 		this.setVisible(true);
 	}
-	public void listarSeries() {
+	public void listarConteudos() {
+		if (perfilatual == null) {
+			JOptionPane.showMessageDialog(this, "Selecione um perfil primeiro!");
+			exibirPerfis();
+			return;
+		}
+
 		updateGUI();
 		center = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-		
+
 		for (Conteudo c : series) {
-			JButton serie = new JButton(c.getNome());
-			serie.setPreferredSize(new Dimension(100, 100));
-			serie.setActionCommand("serie:" + c.getNome());
-			serie.addActionListener(this);
-			center.add(serie);
+			if (!perfilatual.isAdulto() && c.getClassificacao() > 12) continue;
+			JButton btn = new JButton(c.getNome());
+			btn.setPreferredSize(new Dimension(120, 100));
+			btn.setActionCommand("serie:" + c.getNome());
+			btn.addActionListener(this);
+			center.add(btn);
+		}
+
+		for (Conteudo c : filmes) {
+			if (!perfilatual.isAdulto() && c.getClassificacao() > 12) continue;
+			JButton btn = new JButton(c.getNome() + " (Filme)");
+			btn.setPreferredSize(new Dimension(120, 100));
+			btn.setActionCommand("filme:" + c.getNome());
+			btn.addActionListener(this);
+			center.add(btn);
 		}
 
 		this.add(center);
-		this.setVisible(true);
+		this.revalidate();
+		this.repaint();
 	}
-	public void paginaSerie(String nome) {
+	public void paginaConteudo(String chave, String nome) {
+		ArrayList<Conteudo> encontrados = gerenciadorConteudo.buscarConteudo(chave, nome);
+		if (encontrados.isEmpty()) {
+			JOptionPane.showMessageDialog(this, "Conteúdo não encontrado!");
+			return;
+		}
+
+		Conteudo conteudoatual = encontrados.get(0);
+
 		updateGUI();
-		center = new JPanel( new BorderLayout(0,15));
-		center.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
-		JPanel topo = new JPanel(new GridLayout(1, 2, 15, 0));
-		topo.setBackground(new Color(255,0,0));
-		topo.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
-		JPanel primeiro = new JPanel(new BorderLayout(0,10));
-		JLabel label;
-		Conteudo serieatual = null;
-		for (Conteudo c : series) {
-			if (c.getNome().equals(nome)) {
-				serieatual = c;
-				break;
+		center = new JPanel(new BorderLayout(15, 15));
+		center.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+		// --- 1. TOPO: Informações do Conteúdo ---
+		JPanel topo = new JPanel(new BorderLayout(15, 10));
+		topo.setBackground(new Color(35, 35, 35));
+		topo.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
+
+		JPanel infoEsquerda = new JPanel(new GridLayout(3, 1, 5, 5));
+		infoEsquerda.setOpaque(false);
+
+		JLabel tituloLabel = new JLabel(conteudoatual.getNome());
+		tituloLabel.setForeground(Color.WHITE);
+		tituloLabel.setFont(tituloLabel.getFont().deriveFont(22f));
+
+		JLabel descLabel = new JLabel(conteudoatual.getDescricao());
+		descLabel.setForeground(Color.LIGHT_GRAY);
+
+		JLabel resumoLabel = new JLabel(conteudoatual.getResumoDetalhes());
+		resumoLabel.setForeground(new Color(220, 50, 50));
+
+		infoEsquerda.add(tituloLabel);
+		infoEsquerda.add(descLabel);
+		infoEsquerda.add(resumoLabel);
+
+		JPanel infoDireita = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		infoDireita.setOpaque(false);
+		JLabel classiLabel = new JLabel("Classificação: " + conteudoatual.getClassificacao() + " anos");
+		classiLabel.setForeground(Color.WHITE);
+		JButton btnVoltar = new JButton("Voltar");
+		btnVoltar.setActionCommand("paginainicial");
+		btnVoltar.addActionListener(this);
+
+		infoDireita.add(classiLabel);
+		infoDireita.add(btnVoltar);
+
+		topo.add(infoEsquerda, BorderLayout.CENTER);
+		topo.add(infoDireita, BorderLayout.EAST);
+		center.add(topo, BorderLayout.NORTH);
+
+		// --- 2. CENTRO: Temporadas/Episódios (Série) ou Assistir (Filme) ---
+		if (conteudoatual instanceof Serie) {
+			Serie s = (Serie) conteudoatual;
+			JPanel painelSerie = new JPanel(new BorderLayout(10, 10));
+
+			// Barra de seleção de temporada
+			JPanel barraTemporada = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
+			barraTemporada.add(new JLabel("Selecione a Temporada:"));
+
+			ArrayList<Temporada> temporadas = s.getTemporadas();
+			String[] nomesTemporadas = new String[temporadas.size()];
+			for (int i = 0; i < temporadas.size(); i++) {
+				nomesTemporadas[i] = "Temporada " + (i + 1) + " - " + temporadas.get(i).getDescricao();
 			}
+
+			javax.swing.JComboBox<String> comboTemporadas = new javax.swing.JComboBox<>(nomesTemporadas);
+			barraTemporada.add(comboTemporadas);
+			painelSerie.add(barraTemporada, BorderLayout.NORTH);
+
+			// Painel onde os episódios serão listados
+			JPanel listaEpisodiosPanel = new JPanel(new GridLayout(0, 1, 8, 8));
+			javax.swing.JScrollPane scroll = new javax.swing.JScrollPane(listaEpisodiosPanel);
+			scroll.setBorder(BorderFactory.createTitledBorder("Episódios"));
+			painelSerie.add(scroll, BorderLayout.CENTER);
+
+			// Ação para preencher os episódios conforme a temporada escolhida
+			Runnable atualizarListaEpisodios = () -> {
+				listaEpisodiosPanel.removeAll();
+				int idxTemp = comboTemporadas.getSelectedIndex();
+				if (idxTemp >= 0 && idxTemp < temporadas.size()) {
+					Temporada tempSelecionada = temporadas.get(idxTemp);
+					ArrayList<Episodio> eps = tempSelecionada.getEpisodios();
+					for (int i = 0; i < eps.size(); i++) {
+						Episodio ep = eps.get(i);
+						JPanel linhaEp = new JPanel(new BorderLayout(10, 5));
+						linhaEp.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
+
+						JLabel lblEp = new JLabel("  Ep. " + (i + 1) + " - " + ep.getNome() + " (" + ep.getDuracao() + " min)");
+						JButton btnAssistir = new JButton("Assistir");
+						int epIndex = i;
+						btnAssistir.addActionListener(ev -> {
+							JOptionPane.showMessageDialog(this, s.reproduzir(idxTemp, epIndex));
+						});
+
+						linhaEp.add(lblEp, BorderLayout.CENTER);
+						linhaEp.add(btnAssistir, BorderLayout.EAST);
+						listaEpisodiosPanel.add(linhaEp);
+					}
+				}
+				listaEpisodiosPanel.revalidate();
+				listaEpisodiosPanel.repaint();
+			};
+
+			comboTemporadas.addActionListener(ev -> atualizarListaEpisodios.run());
+			if (!temporadas.isEmpty()) {
+				atualizarListaEpisodios.run();
+			}
+
+			center.add(painelSerie, BorderLayout.CENTER);
+
+		} else if (conteudoatual instanceof Filme) {
+			Filme f = (Filme) conteudoatual;
+			JPanel painelFilme = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 20));
+			JButton btnAssistirFilme = new JButton("Assistir Filme (" + f.getDuracao() + " min)");
+			btnAssistirFilme.setPreferredSize(new Dimension(220, 45));
+			btnAssistirFilme.addActionListener(ev -> {
+				JOptionPane.showMessageDialog(this, "Você assistiu o filme: " + f.getNome());
+			});
+			painelFilme.add(btnAssistirFilme);
+			center.add(painelFilme, BorderLayout.CENTER);
 		}
 
-		label = new JLabel(serieatual.getNome());		
-		primeiro.add(label, BorderLayout.NORTH);
-		
-		
-		
-		
-		label = new JLabel(serieatual.getDescricao());
-		primeiro.add(label, BorderLayout.CENTER);
-		
-		center.add(topo, BorderLayout.NORTH);
-		
-		label = new JLabel(Integer.toString(serieatual.getClassificacao()));		
-		primeiro.add(label, BorderLayout.EAST);
-		topo.add(primeiro);
+		this.add(center);
+		this.revalidate();
+		this.repaint();
+	}
 	
+	private int lerInteiro(String texto) throws CampoVazioException, IdadeStringException {
+		if (texto == null || texto.isBlank()) {
+			throw new CampoVazioException();
+		}
+		try {
+			return Integer.parseInt(texto.trim());
+		} catch (NumberFormatException nfe) {
+			throw new IdadeStringException();
+		}
+	}
+	
+	private void contaConfig() {
+		updateGUI();
+		center = new JPanel();
+		JLabel label;
+		
+		label = new JLabel("Email: "+ usuario.getEmail());
+		center.add(label);
+		
+		label = new JLabel("Nome: "+ usuario.getNome());
+		center.add(label);
+		label = new JLabel("Idade: "+ usuario.getIdade());
+		center.add(label);
+		
+		JButton apagarconta = new JButton("Apagar conta");
+		apagarconta.setActionCommand("apagarconta");
+		apagarconta.addActionListener(this);
+		center.add(apagarconta);
+		
 		this.add(center);
 		this.setVisible(true);
 	}
+ 
+	public void sairConta() {
+		usuario = null;
+	    perfilatual = null;
+	    STATUSCONTA = false;
+
+	    this.remove(menubar);
+	    this.add(createMenu(), BorderLayout.NORTH);
+	    menubar.revalidate();
+	    menubar.repaint();
+	    login();
+	}
+	
+	private void listarConteudos(ArrayList<Conteudo> lista, String prefixoComando) {
+		updateGUI();
+		center = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+		for (Conteudo c : lista) {
+			JButton btn = new JButton(c.getNome());
+			btn.setPreferredSize(new Dimension(120, 100));
+			btn.setActionCommand(prefixoComando + c.getNome());
+			btn.addActionListener(this);
+			center.add(btn);
+		}
+		this.add(center);
+		this.revalidate();
+		this.repaint();
+	}
+	
+	private void editarConteudo(String chave, String nomeAtual) throws Exception {
+		String[] opcoes = {"Nome", "Descrição", "Classificação"};
+		int escolha = JOptionPane.showOptionDialog(
+				this,
+				"O que deseja editar em " + nomeAtual + "?",
+				"Editar Conteúdo",
+				JOptionPane.DEFAULT_OPTION,
+				JOptionPane.QUESTION_MESSAGE,
+				null,
+				opcoes,
+				opcoes[0]
+		);
+
+		if (escolha == 0) {
+			String novoNome = JOptionPane.showInputDialog(this, "Novo nome:");
+			if (novoNome != null) {
+				gerenciadorConteudo.atualizarNomeConteudo(chave, nomeAtual, novoNome);
+			}
+		} else if (escolha == 1) {
+			String novaDesc = JOptionPane.showInputDialog(this, "Nova descrição:");
+			if (novaDesc != null) {
+				gerenciadorConteudo.atualizarDescricaoConteudo(chave, nomeAtual, novaDesc);
+			}
+		} else if (escolha == 2) {
+			String input = JOptionPane.showInputDialog(this, "Nova classificação (0 a 18):");
+			if (input != null) {
+				gerenciadorConteudo.atualizarClassificacaoConteudo(chave, nomeAtual, lerInteiro(input));
+			}
+		} else {
+			return;
+		}
+
+		gerenciadorConteudo.salvarJSON();
+		series = gerenciadorConteudo.getConteudo("series");
+		filmes = gerenciadorConteudo.getConteudo("filmes");
+		JOptionPane.showMessageDialog(this, "Conteúdo atualizado com sucesso!");
+	}
+	
 	@Override
-	public void actionPerformed(ActionEvent e){
+	public void actionPerformed(ActionEvent e) {
 		String cmd = e.getActionCommand();
-		if (cmd.equals("menuregistrar")) {
-			cadastrar();
-		} else if (cmd.equals("menulogar")) {
-			login();
-		} else if (cmd.equals("Cadastrar")) {
-				
-			try {
-				String nome = nomeTxt.getText();
-				String email = emailTxt.getText();
-				String senha = senhaTxt.getText();
-				String idadeTexto = idadeTxt.getText();
-				
-				if (idadeTexto.isEmpty()) {
-		            throw new CampoVazioException();
-		        }
-				
-				int idade;
-				try {
-		            idade = Integer.parseInt(idadeTexto);
-		        } catch (NumberFormatException nfe) {
-		            throw new IdadeStringException();
-		        }
-				
-				usuario = new Usuario(nome, email, senha, idade);
-				gerenciador.addUsuario(usuario);
-				try {
-					gerenciador.salvarJSON();
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
+ 
+		try {
+			if (cmd.equals("menuregistrar")) {
+				cadastrar();
+ 
+			} else if (cmd.equals("menulogar")) {
+				login();
+ 
+			} else if (cmd.equals("Cadastrar")) {
+				String nome = nomeTxt.getText().trim();
+				String email = emailTxt.getText().trim();
+				String senha = senhaTxt.getText(); // senha não leva trim
+				int idade = lerInteiro(idadeTxt.getText());
+ 
+				Usuario novo = new Usuario(nome, email, senha, idade);
+				gerenciador.addUsuario(novo);
+				gerenciador.salvarJSON();
 				JOptionPane.showMessageDialog(this, "Usuario criado com sucesso!");
-			} catch (CampoVazioException cve) {
-				JOptionPane.showMessageDialog(this, cve.getMessage());
-			} catch (IdadeStringException ise) {
-				JOptionPane.showMessageDialog(this, ise.getMessage());
-			} catch (TamanhoInvalidoException tie) {
-				JOptionPane.showMessageDialog(this, tie.getMessage());
-			} catch (IdadeInvalidaException iie) {
-				JOptionPane.showMessageDialog(this, iie.getMessage());
-			} catch (EmailInvalidoException eie) {
-				JOptionPane.showMessageDialog(this, eie.getMessage());
-			} catch (PerfilDuplicadoException pde) {
-				JOptionPane.showMessageDialog(this, pde.getMessage());
-			} catch (EmailExistenteException eee) {
-				JOptionPane.showMessageDialog(this, eee.getMessage());
-			}
-			
-
-			
-		} else if (cmd.equals("logar")) {
-			try {
-			String email = emailTxt.getText();
-			String senha = senhaTxt.getText();
-			usuario = gerenciador.logarUsuario(email, senha);
-				if (usuario != null) {
-					STATUSCONTA = true;
-					this.remove(menubar);
-	
-					this.add(createMenu(), BorderLayout.NORTH);
-					menubar.revalidate();
-					menubar.repaint();
-	
-					JOptionPane.showMessageDialog(this, "Usuario logado com sucesso!");
-					exibirPerfis();
-				} else {
-					JOptionPane.showMessageDialog(this, "Usuario ou senha invalida!");
+ 
+			} else if (cmd.equals("logar")) {
+				String email = emailTxt.getText().trim();
+				String senha = senhaTxt.getText();
+ 
+				Usuario logado;
+				try {
+					logado = gerenciador.logarUsuario(email, senha);
+				} catch (SenhaIncorretaException | EmailNaoExisteException loginEx) {
+					JOptionPane.showMessageDialog(this, "E-mail ou senha inválidos!");
+					return;
 				}
-			}catch(EmailExistenteException eee) {
-				JOptionPane.showMessageDialog(this, eee.getMessage());
-			}
-		} else if (cmd.equals("menuperfils")) {
-			exibirPerfis();
-		} else if (cmd.startsWith("perfil:")) {
-			String apelido = cmd.replace("perfil:", "");
-			perfilatual = usuario.getPerfil(apelido);
-			JOptionPane.showMessageDialog(this, "Voce está no perfil de " + perfilatual.getApelido());
-			listarSeries();
-		} else if (cmd.equals("adicionarperfil")) {
-			adicionarPerfil();
-		} else if (cmd.equals("criarperfil")) {
-			try {
-				String apelido = apelidoTxt.getText();
+				
+				usuario = logado;
+				gerenciador.salvarSessaoJSON(usuario.getEmail());
+				STATUSCONTA = true;
+				this.remove(menubar);
+				this.add(createMenu(), BorderLayout.NORTH);
+				menubar.revalidate();
+				menubar.repaint();
+ 
+				JOptionPane.showMessageDialog(this, "Usuario logado com sucesso!");
+				exibirPerfis();
+ 
+			} else if (cmd.equals("listaperfis")) {
+				exibirPerfis();
+ 
+			} else if (cmd.startsWith("perfil:")) {
+				String apelido = cmd.replace("perfil:", "");
+				Perfil escolhido = usuario.getPerfil(apelido);
+				if (escolhido == null) {
+					JOptionPane.showMessageDialog(this, "Perfil não encontrado!");
+					return;
+				}
+				perfilatual = escolhido;
+				JOptionPane.showMessageDialog(this, "Voce está no perfil de " + perfilatual.getApelido());
+				listarConteudos();
+ 
+			} else if (cmd.equals("adicionarperfil")) {
+				adicionarPerfil();
+ 
+			} else if (cmd.equals("criarperfil")) {
+				String apelido = apelidoTxt.getText().trim();
 				boolean adulto = adultoCheck.isSelected();
-
-
+ 
 				usuario.addPerfil(apelido, adulto);
 				gerenciador.salvarJSON();
-
-			} catch (PerfilDuplicadoException pde) {
-				// TODO Auto-generated catch block
-				JOptionPane.showMessageDialog(this, pde.getMessage());
-			} catch (IdadeStringException ise) {
-				JOptionPane.showMessageDialog(this, ise.getMessage());
-			} catch (IOException e2) {
-				// TODO Auto-generated catch block
-				e2.printStackTrace();
-			}
-
-		}else if (cmd.equals("admacess")) {
-			cadastrarSerie();
-		} else if (cmd.equals("cadastrarconteudo")) {
-			String nome = nomeConteudoTxt.getText();
-			String descricao = descricaoTxt.getText();
-			int classificacao = Integer.parseInt(classiTxt.getText());
-			String descricaotemp = descricaotempTxt.getText();
-
-			serie = new Serie(nome, descricao, classificacao);
-			serie.adicionarTemporada(descricaotemp);
-			gerenciadorConteudo.adicionarConteudo(serie);
-			try {
+				JOptionPane.showMessageDialog(this, "Perfil criado com sucesso!");
+				exibirPerfis();
+ 
+			} else if (cmd.equals("adicionarserie")) {
+				cadastrarSerie();
+ 
+			} else if (cmd.equals("cadastrarconteudo")) {
+				String nome = nomeConteudoTxt.getText().trim();
+				String descricao = descricaoTxt.getText().trim();
+				int classificacao = lerInteiro(classiTxt.getText());
+				String descricaotemp = descricaotempTxt.getText().trim();
+ 
+				Serie nova = new Serie(nome, descricao, classificacao);
+				nova.adicionarTemporada(descricaotemp);
+				gerenciadorConteudo.adicionarConteudo(nova);
 				gerenciadorConteudo.salvarJSON();
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+ 
+				serie = nova;
+				series = gerenciadorConteudo.getConteudo("series");
 				JOptionPane.showMessageDialog(this, "Serie adicionada com sucesso!");
+ 
+			} else if (cmd.equals("adicionarep")) {
+				if (serie == null) {
+					JOptionPane.showMessageDialog(this, "Cadastre uma série primeiro.");
+					return;
+				}
+				String nomeep = nomeepisodioTxt.getText().trim();
+				String duracaoStr = duracaoepisodioTxt.getText().trim();
 
-			}
-			JOptionPane.showMessageDialog(this, gerenciadorConteudo.getConteudos());
+				if (nomeep.isEmpty() || duracaoStr.isEmpty()) {
+					throw new CampoVazioException();
+				}
 
-		} else if (cmd.equals("adicionarep")) {
-			String nomeep = nomeepisodioTxt.getText();
-			double duracaoep = Double.parseDouble(duracaoepisodioTxt.getText());
-			serie.getTemporada().adicionarEpisodio(nomeep, duracaoep);
-			try {
+				double duracaoep = Double.parseDouble(duracaoStr);
+
+				serie.getTemporada().adicionarEpisodio(nomeep, duracaoep);
 				gerenciadorConteudo.salvarJSON();
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-				JOptionPane.showMessageDialog(this, "Serie adicionada com sucesso!");
+				JOptionPane.showMessageDialog(this, "Episódio adicionado!");
+ 
+			} else if (cmd.equals("menualterarsenha")) {
+				senhaConfig();
+ 
+			} else if (cmd.equals("alterarsenha")) {
+				String novasenha = novasenhaTxt.getText();
+				String antigasenha = antigasenhaTxt.getText();
+ 
+				usuario.alterarSenha(novasenha, antigasenha);
+				gerenciador.salvarJSON();
+				JOptionPane.showMessageDialog(this, "Senha alterada com sucesso!");
+ 
+			} else if (cmd.equals("menualteraremail")) {
+				emailConfig();
+ 
+			} else if (cmd.equals("alteraremail")) {
+				String novoemail = novoemailTxt.getText().trim();
+				String antigoemail = antigoemailTxt.getText().trim();
+ 
+				gerenciador.alterarEmail(usuario,novoemail, antigoemail);
+				gerenciador.salvarJSON();
+				JOptionPane.showMessageDialog(this, "E-mail alterado com sucesso!");
+ 
+			} else if (cmd.equals("menualterarnome")) {
+				nomeConfig();
+ 
+			} else if (cmd.equals("alterarnome")) {
+				String novonome = novonomeTxt.getText().trim();
+				String antigonome = antigonomeTxt.getText().trim();
+ 
+				usuario.alterarNome(novonome, antigonome);
+				gerenciador.salvarJSON();
+				JOptionPane.showMessageDialog(this, "Nome alterado com sucesso!");
+ 
+			} else if (cmd.equals("menualteraridade")) {
+				idadeConfig();
+ 
+			} else if (cmd.equals("alteraridade")) {
+				int novaidade = lerInteiro(novaidadeTxt.getText());
+				int antigaidade = lerInteiro(antigaidadeTxt.getText());
+ 
+				usuario.alterarIdade(novaidade, antigaidade);
+				gerenciador.salvarJSON();
+				JOptionPane.showMessageDialog(this, "Idade alterada com sucesso!");
+ 
+			} else if (cmd.equals("paginainicial")) {
+				listarConteudos();
+ 
+			} else if (cmd.startsWith("serie:")) {
+				String nome = cmd.replace("serie:", "");
+				paginaConteudo("series", nome);
+			} else if(cmd .equals("menuconta")) {
+				contaConfig();
+			} else if (cmd.equals("apagarconta")) {
+			    int confirmacao = JOptionPane.showConfirmDialog(
+			            this,
+			            "Tem certeza que deseja apagar sua conta?",
+			            "Confirmar exclusão",
+			            JOptionPane.YES_NO_OPTION
+			        );
+			        if (confirmacao == JOptionPane.YES_OPTION) {
+			            gerenciador.apagarConta(usuario.getEmail());
+			            gerenciador.salvarJSON();
+			            gerenciador.salvarSessaoJSON("");
+			            sairConta();
+			            JOptionPane.showMessageDialog(this, "Conta apagada com sucesso!");
+			        }
 
-			}
-			JOptionPane.showMessageDialog(this, "cmd ativado");
-		} else if (cmd.equals("menualterarsenha")) {
-			senhaConfig();
-		} else if (cmd.equals("alterarsenha")) {
-			String novasenha = novasenhaTxt.getText();
-			String antigasenha = antigasenhaTxt.getText();
-			usuario.alterarSenha(novasenha, antigasenha);
-			JOptionPane.showMessageDialog(this, usuario.getSenha());
-			try {
-				gerenciador.salvarJSON();
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-		} else if (cmd.equals("menualteraremail")) {
-			emailConfig();
+			    } else if (cmd.equals("sairconta")) {
+			        gerenciador.salvarSessaoJSON("");
+			        sairConta();
 
-		} else if (cmd.equals("alteraremail")) {
-			String novoemail = novoemailTxt.getText();
-			String antigoemail = antigoemailTxt.getText();
-			usuario.alterarEmail(novoemail, antigoemail);
-			JOptionPane.showMessageDialog(this, usuario.getEmail());
-			try {
-				gerenciador.salvarJSON();
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-		} else if (cmd.equals("menualterarnome")) {
-			nomeConfig();
-		} else if (cmd.equals("alterarnome")) {
-			String novonome = novonomeTxt.getText();
-			String antigonome = antigonomeTxt.getText();
-			usuario.alterarNome(novonome, antigonome);
-			JOptionPane.showMessageDialog(this, usuario.getNome());
-			try {
-				gerenciador.salvarJSON();
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-		} else if (cmd.equals("menualteraridade")) {
-			idadeConfig();
-		} else if (cmd.equals("alteraridade")) {
-			int novaidade = Integer.parseInt(novaidadeTxt.getText());
-			int antigaidade = Integer.parseInt(antigaidadeTxt.getText());
-			usuario.alterarIdade(novaidade, antigaidade);
-			JOptionPane.showMessageDialog(this, usuario.getIdade());
-			try {
-				gerenciador.salvarJSON();
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-		}else if(cmd.equals("paginainicial")) {
-			listarSeries();
-		}else if(cmd.startsWith("serie:")) {
-			String nome = cmd.replace("serie:", "");
-			paginaSerie(nome);	
-		}
+			    } else if (cmd.equals("removerperfil")) {
+			        removerPerfil();
+
+			    } else if (cmd.startsWith("removerperfil:")) {
+			        String apelido = cmd.replace("removerperfil:", "");
+			        usuario.removerPerfil(apelido);
+			        if (perfilatual != null && perfilatual.getApelido().equalsIgnoreCase(apelido)) {
+			            perfilatual = null;
+			        }
+			        gerenciador.salvarJSON();
+			        JOptionPane.showMessageDialog(this, "Perfil removido!");
+			        exibirPerfis();
+
+			    } else if (cmd.equals("apelidoperfil")) {
+			        mudarApelido();
+
+			    } else if (cmd.startsWith("mudarapelido:")) {
+			        String apelidoAntigo = cmd.replace("mudarapelido:", "");
+			        String novoApelido = JOptionPane.showInputDialog(this, "Novo apelido para " + apelidoAntigo + ":");
+			        
+			        if (novoApelido != null) {
+			            usuario.alterarApelidoPerfil(apelidoAntigo, novoApelido);
+			            gerenciador.salvarJSON();
+			            JOptionPane.showMessageDialog(this, "Apelido alterado com sucesso!");
+			            exibirPerfis();
+			        }
+			    } else if (cmd.equals("apagarserie")) {
+			    	listarConteudos(series, "apagarserie:");
+			    } else if (cmd.equals("editarserie")) {
+			    	listarConteudos(series, "editarserie:");
+			    } else if (cmd.equals("adicionarfilme")) {
+			    	cadastrarFilme();
+			    } else if (cmd.equals("apagarfilme")) {
+			    	listarConteudos(filmes, "apagarfilme:");
+			    } else if (cmd.equals("editarfilme")) {
+			    	listarConteudos(filmes, "editarfilme:");
+			    }else if (cmd.startsWith("apagarserie:")) {
+			    	String nome = cmd.replace("apagarserie:", "");
+			    	gerenciadorConteudo.removerConteudo("series", nome);
+			    	gerenciadorConteudo.salvarJSON();
+			    	series = gerenciadorConteudo.getConteudo("series");
+			    	JOptionPane.showMessageDialog(this, "Série removida com sucesso!");
+			    	listarConteudos(series, "apagarserie:");
+
+			    } else if (cmd.startsWith("apagarfilme:")) {
+			    	String nome = cmd.replace("apagarfilme:", "");
+			    	gerenciadorConteudo.removerConteudo("filmes", nome);
+			    	gerenciadorConteudo.salvarJSON();
+			    	filmes = gerenciadorConteudo.getConteudo("filmes");
+			    	JOptionPane.showMessageDialog(this, "Filme removido com sucesso!");
+			    	listarConteudos(filmes, "apagarfilme:");
+			    } else if (cmd.startsWith("filme:")) {
+			    	String nome = cmd.replace("filme:", "");
+			    	paginaConteudo("filmes", nome);
+			    }else if (cmd.startsWith("editarserie:")) {
+			    	String nomeAtual = cmd.replace("editarserie:", "");
+			    	editarConteudo("series", nomeAtual);
+			    	listarConteudos(series, "editarserie:");
+
+			    }else if (cmd.equals("cadastrarfilme")) {
+			    	String nome = nomeConteudoTxt.getText().trim();
+			    	String descricao = descricaoTxt.getText().trim();
+			    	int classificacao = lerInteiro(classiTxt.getText());
+			    	int duracao = lerInteiro(duracaoTxt.getText());
+
+			    	Filme novoFilme = new Filme(nome, descricao, classificacao, duracao);
+			    	gerenciadorConteudo.adicionarConteudo(novoFilme);
+			    	gerenciadorConteudo.salvarJSON();
+			    	filmes = gerenciadorConteudo.getConteudo("filmes");
+			    	JOptionPane.showMessageDialog(this, "Filme adicionado com sucesso!");
+			    }else if (cmd.startsWith("editarfilme:")) {
+			    	String nomeAtual = cmd.replace("editarfilme:", "");
+			    	editarConteudo("filmes", nomeAtual);
+			    	listarConteudos(filmes, "editarfilme:");
+			    }
+			
+		// A ORDEM dos catch importa: o mais específico vem antes do mais geral.
+		} catch (NumberFormatException nfe) {
+			// Double.parseDouble com texto inválido (duração do episódio)
+			JOptionPane.showMessageDialog(this, "Digite apenas números nos campos numéricos.");
+		} catch (IOException ioe) {
+			JOptionPane.showMessageDialog(this, "Não foi possível salvar os dados.");
+		} catch (RuntimeException re) {
+			// erro de programação (null, índice...): mostra aviso e registra no console
+			re.printStackTrace();
+			JOptionPane.showMessageDialog(this, "Erro inesperado: " + re);
+		} catch (Exception ex) {
+			// aqui caem todas as exceções do domínio (campo vazio, e-mail inválido,
+			// e-mail existente, senha incorreta, perfil duplicado, etc.)
+			JOptionPane.showMessageDialog(this, ex.getMessage());
+		} 
+
+	
 	}
 
 	public static void main(String[] args) {
 		StreamGUI streamgui = new StreamGUI();
+		
 		streamgui.executar();
 	}
 }

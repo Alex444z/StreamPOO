@@ -1,6 +1,16 @@
 package conta;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
 //import exceptions.CampoVazioException;
 //import exceptions.IdadeStringException;
@@ -179,6 +189,41 @@ public class Usuario {
 			cont ++;
 		}return sb.toString();
 		
+	}
+	
+	public boolean removerPerfil(String apelido) throws CampoVazioException, PerfilNaoExisteException {
+	    if (apelido == null || apelido.trim().isEmpty()) {
+	        throw new CampoVazioException("Informe o apelido do perfil a ser removido.");
+	    }
+	    if (apelido.trim().equalsIgnoreCase("Infantil")) {
+	        throw new CampoVazioException("O perfil Infantil padrão não pode ser removido!");
+	    }
+	    boolean removido = perfils.removeIf(p -> p.getApelido().equalsIgnoreCase(apelido.trim()));
+	    if (!removido) {
+	        throw new PerfilNaoExisteException();
+	    }
+	    return removido;
+	}
+	
+	public void alterarApelidoPerfil(String apelidoAntigo, String novoApelido) 
+	        throws CampoVazioException, PerfilPadraoException, PerfilNaoExisteException, PerfilDuplicadoException {
+	    
+	    if (novoApelido == null || novoApelido.trim().isEmpty()) {
+	        throw new CampoVazioException("O novo apelido não pode ser vazio.");
+	    }
+	    if (apelidoAntigo.trim().equalsIgnoreCase("Infantil")) {
+	        throw new PerfilPadraoException("O apelido do perfil Infantil padrão não pode ser alterado!");
+	    }
+	    if (getPerfil(novoApelido.trim()) != null) {
+	        throw new PerfilDuplicadoException();
+	    }
+
+	    Perfil perfil = getPerfil(apelidoAntigo);
+	    if (perfil == null) {
+	        throw new PerfilNaoExisteException();
+	    }
+
+	    perfil.setApelido(novoApelido.trim());
 	}
 	
 	@Override

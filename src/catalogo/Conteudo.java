@@ -22,6 +22,10 @@ public abstract class Conteudo {
 		this.descricao = descricao;
 		this.classificacao = classificacao;
 	}
+	
+	public abstract double getDuracaoTotal();
+	public abstract String getResumoDetalhes();
+	
 	public String getNome() {
 		return nome;
 	}

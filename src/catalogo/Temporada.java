@@ -36,4 +36,19 @@ public class Temporada {
   public Episodio getEpisodio(int numeroepi) {
 	  return episodios.get(numeroepi);
   }
+  public double getDuracaoTemporada() {
+		double total = 0;
+		for (Episodio ep : episodios) {
+			total += ep.getDuracao();
+		}
+		return total;
+	}
+  
+  public ArrayList<Episodio> getEpisodios() {
+		return this.episodios;
+	}
+
+	public int getTotalEpisodios() {
+		return episodios.size();
+	}
 }

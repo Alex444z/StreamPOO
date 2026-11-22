@@ -30,7 +30,7 @@ public class Perfil {
 		this.apelido = apelido;
 	}
 
-	public boolean getAdulto() {
+	public boolean isAdulto() {
 		return adulto;
 	}
 	
