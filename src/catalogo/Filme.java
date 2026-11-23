@@ -4,18 +4,18 @@ import exceptions.CampoVazioException;
 import exceptions.ClassificacaoInvalidaException;
 
 public class Filme extends Conteudo {
-	private int duracao;
+	private double duracao;
 	
-	public Filme(String nome, String descricao, int classificacao, int duracao) throws CampoVazioException, ClassificacaoInvalidaException {
+	public Filme(String nome, String descricao, int classificacao, double duracao) throws CampoVazioException, ClassificacaoInvalidaException {
 		super(nome, descricao, classificacao);
 		setDuracao(duracao);
 	}
 
-	public int getDuracao() {
+	public double getDuracao() {
 		return duracao;
 	}
 
-	public void setDuracao(int duracao) throws CampoVazioException {
+	public void setDuracao(double duracao) throws CampoVazioException {
 		if (duracao <= 0) {
 			throw new CampoVazioException("A duração do filme deve ser maior que zero.");
 		}

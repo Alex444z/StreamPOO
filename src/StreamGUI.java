@@ -50,6 +50,7 @@ import exceptions.TamanhoInvalidoException;
 import exceptions.ClassificacaoInvalidaException;
 import exceptions.ConteudoExistenteException;
 import exceptions.ConteudoNaoEcontradoException;
+import exceptions.DuracaoInvalidaException;
 
 public class StreamGUI extends JFrame implements ActionListener {
 	private Usuario usuario;
@@ -763,6 +764,17 @@ public class StreamGUI extends JFrame implements ActionListener {
 		}
 	}
 	
+	private double lerDuracao(String texto) throws CampoVazioException, DuracaoInvalidaException {
+		if (texto == null || texto.isBlank()) {
+			throw new CampoVazioException();
+		}
+		try {
+			return Double.parseDouble(texto.trim());
+		} catch (NumberFormatException nfe) {
+			throw new DuracaoInvalidaException();
+		}
+	}
+	
 	private void contaConfig() {
 		updateGUI();
 		center = new JPanel();
@@ -945,13 +957,10 @@ public class StreamGUI extends JFrame implements ActionListener {
 					return;
 				}
 				String nomeep = nomeepisodioTxt.getText().trim();
-				String duracaoStr = duracaoepisodioTxt.getText().trim();
-
-				if (nomeep.isEmpty() || duracaoStr.isEmpty()) {
-					throw new CampoVazioException();
+				if (nomeep.isEmpty()) {
+				    throw new CampoVazioException();
 				}
-
-				double duracaoep = Double.parseDouble(duracaoStr);
+				double duracaoep = lerDuracao(duracaoepisodioTxt.getText());
 
 				serie.getTemporada().adicionarEpisodio(nomeep, duracaoep);
 				gerenciadorConteudo.salvarJSON();
@@ -1091,7 +1100,7 @@ public class StreamGUI extends JFrame implements ActionListener {
 			    	String nome = nomeConteudoTxt.getText().trim();
 			    	String descricao = descricaoTxt.getText().trim();
 			    	int classificacao = lerInteiro(classiTxt.getText());
-			    	int duracao = lerInteiro(duracaoTxt.getText());
+			    	double duracao = lerDuracao(duracaoTxt.getText());
 
 			    	Filme novoFilme = new Filme(nome, descricao, classificacao, duracao);
 			    	gerenciadorConteudo.adicionarConteudo(novoFilme);
@@ -1123,7 +1132,7 @@ public class StreamGUI extends JFrame implements ActionListener {
 				| ClassificacaoInvalidaException | ConteudoExistenteException
 				| ConteudoNaoEcontradoException | SenhaIgualException | NomeIncorretoException
 				| NomeIgualException | IdadeIncorretaException | IdadeIgualException
-				| PerfilNaoExisteException | PerfilPadraoException ex) {
+				| PerfilNaoExisteException | PerfilPadraoException | DuracaoInvalidaException ex) {
 			JOptionPane.showMessageDialog(this, ex.getMessage());
 		} catch (RuntimeException re) {
 			re.printStackTrace();
